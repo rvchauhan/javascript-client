@@ -27,7 +27,7 @@
 .checkout {
   font-weight: bold;
   flex-grow: 1;
-  padding-left: 6px;
+  padding-left: 10px;
 }
 
 .path {
@@ -115,7 +115,7 @@ ul.breadcrumb li a:hover {
   display: flex;
   flex-direction: row;
   height: 20%;
-  padding-left: 6px;
+  padding-left: 10px;
   color: grey;
   border-bottom: 1px solid lightgray;
 
@@ -243,6 +243,7 @@ input[type=submit] {
   flex-direction: row;
   display: flex;
   padding-left: 11px;
+  padding-right: 2%;
   justify-content: space-between;
 
 }
@@ -256,7 +257,7 @@ input[type=submit] {
 
 .lower--right--product {
   font-size: 100%;
-  color: black;
+  font-weight: bold;
   margin-top: 30%;
   margin-left: -14%;
   width: 300%;
@@ -271,6 +272,7 @@ input[type=submit] {
 
 .lower--right--price {
   font-weight: bold;
+  padding-right: 2%;
 }
 
 .lower--right--details {
@@ -279,7 +281,8 @@ input[type=submit] {
 }
 
 .lower--right--value {
-  padding-top: 3%;
+  padding-top: 4%;
+  padding-right: 2%;
 }
 
 .lower--right--total--price {
@@ -296,7 +299,67 @@ input[type=submit] {
   flex-direction: row;
   display: flex;
   padding-left: 11px;
+  margin-right: 2%;
   justify-content: space-between;
   padding-top: 5%
 }
 
+@media screen and (max-width: 790px) {
+  .lower {
+      flex-direction: column-reverse;
+  }
+}
+
+@media (max-width: 500px ){
+  .lower--left--up--cards {
+      flex-direction: column;
+     
+  }
+
+
+  .lower--left--up--cards>div:nth-child(1)>img:nth-child(1) {
+      height: 80%;
+      display: block;
+      width: 80%;
+      padding: 2% 5% 8% 8%;
+      flex-grow: 1;
+  }
+
+  .lower--left--up--cards>div:nth-child(2)>img:nth-child(1) {
+      height: 80%;
+      display: block;
+      width: 80%;
+      padding: 2% 5% 8% 8%;
+      flex-grow: 1;
+  }
+
+  .lower--left--up--cards>div:nth-child(3)>img:nth-child(1) {
+      height: 80%;
+      display: block;
+      width: 80%;
+      padding: 2% 5% 8% 8%;
+      flex-grow: 1;
+  }
+}
+@media only screen and (max-width: 992px){
+  .container{
+      margin-left: 20px;
+      margin-right: 20px;
+  }
+}
+
+
+@media screen and (min-width: 768) and (max-width: 992){
+  .lower--right{
+      flex: 1;
+  }
+  .lower--left{
+      flex: 1;
+  }
+}
+@media (max-width:756px){
+  ul.path.breadcrumb {
+      display: none;
+      visibility: hidden;
+  }
+}
