@@ -13,7 +13,7 @@ font-weight: bold;
 const Input = styled.input`
   ${(props) => props.value === 'Disabled input'
   && css`
-    width:99.7%;
+    width:99.6%;
     background-color: lightgrey;
     height: 25px;
 `};
