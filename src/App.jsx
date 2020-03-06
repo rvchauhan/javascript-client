@@ -1,13 +1,13 @@
 import React from 'react';
-import { TextFieldDemo } from './pages/index';
-import { Container } from './components/TextField/style';
+import InputDemo from './pages/TextFieldDemo/inputDemo';
+
 
 function App() {
   return (
     <div>
-      <Container>
-        <TextFieldDemo />
-      </Container>
+      {console.log('Inside app')}
+      <InputDemo />
+
     </div>
   );
 }

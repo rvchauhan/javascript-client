@@ -7,7 +7,7 @@ import { banners } from '../../config/constant';
 function TextFieldDemo() {
   return (
     <div>
-      <Slider altText="Default Banner" banners={banners} duration={2000} height={200} random={false} />
+      <Slider altText="Default Banner" banners={banners} durationn height={200} random={false} />
       <Text>
         <p>This is disabled input</p>
       </Text>
