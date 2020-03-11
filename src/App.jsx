@@ -1,13 +1,14 @@
 import React from 'react';
-import InputDemo from './pages/TextFieldDemo/inputDemo';
-
+import { ThemeProvider } from '@material-ui/core/styles';
+import Theme from './theme';
+import ChildrenDemo from './pages/TextFieldDemo/ChildrenDemo';
 
 function App() {
   return (
     <div>
-      {console.log('Inside app')}
-      <InputDemo />
-
+      <ThemeProvider theme={Theme}>
+        <ChildrenDemo />
+      </ThemeProvider>
     </div>
   );
 }

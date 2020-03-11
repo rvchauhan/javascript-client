@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.9.5",
     "commitizen": "^4.0.3",
     "eslint-config-airbnb": "^18.0.1",
     "husky": "^4.2.3",
