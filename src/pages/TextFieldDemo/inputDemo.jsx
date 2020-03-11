@@ -1,4 +1,5 @@
 import React from 'react';
+import * as yup from 'yup';
 import TextField from '../../components/TextField/TextField';
 import SelectField from '../../components/SelectField/selectField';
 import RadioGroup from '../../components/RadioGroup/radioGroup';
@@ -47,13 +48,32 @@ class InputDemo extends React.Component {
     return sport === 'cricket' ? radioOptionsCricket : radioOptionsFootball;
   }
 
+  hasErrors = () => {
+
+    const schema = yup.object().shape({
+      name: yup.string().required('Required'),
+      sport: yup.required('Required'),
+      football: yup.required('Required'),
+      cricket: yup.required('Required'),
+    });
+  }
+
+  isTouched = () => {
+    console.log('asas');
+    return true;
+  }
+
+  getErrors = () => {
+
+  }
+
   render() {
     const { sport, name, cricket } = this.state;
 
     return (
       <>
         <p><b>Name</b></p>
-        <TextField onChange={this.onChangeTextField} value={name} />
+        <TextField onChange={this.onChangeTextField} schema value={name} onBlur={this.isTouched} />
 
         <p><b>Select Your Game You Play?</b></p>
         <SelectField defaultOption="Select" options={selectOptions} onChange={this.onChangeSelectOptions} value={sport} />
@@ -66,6 +86,8 @@ class InputDemo extends React.Component {
             </>
           )
         }
+        <button type='button' color disabled style value onClick>cancel</button>
+        <button type='button'>Submit</button>
       </>
     );
   }

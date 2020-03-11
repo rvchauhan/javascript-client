@@ -4,8 +4,8 @@ import { Input } from './index';
 
 
 const TextField = (props) => {
-  const { onChange, value } = props;
-  return <Input type="text" onChange={onChange} value={value} />;
+  const { onChange, value, onBlur } = props;
+  return <Input type="text" onChange={onChange} value={value} onBlur={onBlur} />;
 };
 
 TextField.propTypes = {
