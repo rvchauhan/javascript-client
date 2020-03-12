@@ -1,11 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input } from './index';
+import { Input, P } from './index';
 
 
 const TextField = (props) => {
-  const { onChange, value } = props;
-  return <Input type="text" onChange={onChange} value={value} />;
+  const {
+    onChange, value, error, onBlur,
+  } = props;
+  return (
+    <>
+      <Input type="text" onChange={onChange} value={value} onBlur={onBlur} />
+      <P>
+        {error}
+      </P>
+    </>
+  );
 };
 
 TextField.propTypes = {
