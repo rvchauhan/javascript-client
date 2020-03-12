@@ -1,10 +1,12 @@
-
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { P } from './index';
 
 const RadioGroup = (props) => {
   // console.log('inside radio group', props);
-  const { options, onChange, error, onBlur } = props;
+  const {
+    options, onChange, error, onBlur,
+  } = props;
   return (
     <>
       {
@@ -16,9 +18,9 @@ const RadioGroup = (props) => {
           </Fragment>
         ))
       }
-      <p>
+      <P>
         {error}
-      </p>
+      </P>
     </>
   );
 };
