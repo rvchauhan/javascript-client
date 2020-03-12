@@ -1,23 +1,35 @@
 import React from 'react';
-import PropTypes, { string } from 'prop-types';
+import PropTypes from 'prop-types';
+import { Buttons } from './style';
 
-const button = (props) => {
-  const { color, disabled, style, value, onClick } = props;
+const Button = (props) => {
+  const {
+    color, disabled, style, value } = props;
   return (
-
+    <>
+      <Buttons
+        type={value}
+        style={style}
+        color={color}
+        disabled={disabled}
+      >
+        {value}
+      </Buttons>
+    </>
   );
-}
+};
 
-button.PropTypes = {
-  color: PropTypes.color,
+Button.propTypes = {
+  color: PropTypes.string,
   disabled: PropTypes.bool,
-  style: PropTypes.objectOf(string),
+  style: PropTypes.objectOf(PropTypes.string),
   value: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired
-}
+};
 
-button.defaultProps  = {
-  color: 'default',
+Button.defaultProps = {
+  color: 'default' || 'primary',
   disabled: false,
   style: {},
-}
+};
+
+export default Button;

@@ -9,5 +9,11 @@ border: 1px solid #ccc;
 border-radius: 4px;
 box-sizing: border-box;
 `;
+const P = styled.div`
+margin-top: 4px;
+margin-bottom: 2%;
+color: red;
+`;
 
+export { P };
 export default Select;

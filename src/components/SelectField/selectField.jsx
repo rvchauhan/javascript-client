@@ -1,16 +1,16 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from './style';
+import Select, { P } from './style';
 
 const SelectField = (props) => {
   // console.log('inside select field', props);
   const {
-    options, defaultOption, onChange, value, error,
+    options, defaultOption, onChange, values, error, onBlur,
   } = props;
   return (
     <>
-      <Select value={value} onChange={onChange}>
+      <Select value={values} onChange={onChange} onBlur={onBlur}>
         {defaultOption && <option>{defaultOption}</option>}
         {
           options && options.length && options.map(({ value, label }) => {
@@ -20,9 +20,9 @@ const SelectField = (props) => {
           })
         }
       </Select>
-      <p>
+      <P>
         {error}
-      </p>
+      </P>
     </>
   );
 };
@@ -30,7 +30,7 @@ const SelectField = (props) => {
 SelectField.propTypes = {
   error: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.object).isRequired,
-  defaultText: PropTypes.string.isRequired,
+  defaultOption: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   values: PropTypes.string.isRequired,
 };
