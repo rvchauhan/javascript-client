@@ -1,14 +1,15 @@
 import React from 'react';
 import {
-  BrowserRouter as Router, Route, Link, Match, Redirect, Switch,
+  BrowserRouter as Router,
+  Route,
+  Redirect,
+  Switch,
 } from 'react-router-dom';
-// import { ThemeProvider, Typography } from '@material-ui/core';
-// import Theme from './theme';
-import ChildrenDemo from './pages/TextFieldDemo/ChildrenDemo';
+import ChildrenDemo from './pages/ChildrenDemo/ChildrenDemo';
 import TextFieldDemo from './pages/TextFieldDemo/TextFielddemo';
 import Login from './pages/Login/Login';
 import Trainee from './pages/Trainee/Trainee';
-import InputDemo from './pages/TextFieldDemo/inputDemo';
+import InputDemo from './pages/InputDemo/InputDemo';
 import { AuthRoute, PrivateRoute } from './pages/routes/index';
 import NoMatch from './pages/NoMatch/index';
 
