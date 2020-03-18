@@ -13,6 +13,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import EmailIcon from '@material-ui/icons/Email';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Grid from '@material-ui/core/Grid';
+import PropTypes from 'prop-types';
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required').min(3),
