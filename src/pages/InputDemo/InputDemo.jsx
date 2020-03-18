@@ -1,5 +1,5 @@
 import React from 'react';
-import * as yup from 'yup';
+import { schema } from '../../config/constant';
 import TextField from '../../components/TextField/TextField';
 import SelectField from '../../components/SelectField/selectField';
 import { RadioGroup } from '../../components/RadioGroup/index';
@@ -10,23 +10,18 @@ import { Button } from '../../components/Button/index';
 class InputDemo extends React.Component {
   constructor(props) {
     super(props);
-    this.schema = yup.object().shape({
-      name: yup.string().required('Please Enter your Name').min(3, 'Please enter no less than 3 characters'),
-      sport: yup.string().required('Please select a sport'),
-      football: yup.string().when('sport', {
-        is: 'football',
-        then: yup.string().required('Select option'),
-      }),
-      cricket: yup.string().when('sport', {
-        is: 'cricket',
-        then: yup.string().required('Select option'),
-      }),
-    });
     this.state = {
       name: '',
       sport: '',
       cricket: '',
       football: '',
+      hasError: false,
+      error: {
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      },
       touched: {
         name: false,
         sport: false,
@@ -52,8 +47,8 @@ class InputDemo extends React.Component {
   }
 
   onChangeRadioOption = (event) => {
-    let { cricket, football, sport } = this.state;
-    console.log('______--', event.target.value);
+    let { cricket, football } = this.state;
+    const { sport } = this.state;
     if (sport === 'football') {
       cricket = '';
       this.setState({ football: event.target.value, cricket });
@@ -66,17 +61,18 @@ class InputDemo extends React.Component {
 
   getRadioOptions = () => {
     const { sport } = this.state;
-
     return sport === 'cricket' ? radioOptionsCricket : radioOptionsFootball;
   }
 
   hasErrors = () => {
-    try {
-      this.schema.validateSync(this.state);
-    } catch (err) {
-      return true;
-    }
-    return false;
+    const { hasError } = this.state;
+    schema.isValid(this.state)
+      .then((valid) => {
+        if (!valid !== hasError) {
+          this.setState({ hasError: !valid })
+        }
+      });
+    return hasError
   }
 
   isTouched = (field) => {
@@ -90,18 +86,34 @@ class InputDemo extends React.Component {
   }
 
   getErrors = (field) => {
-    if (this.state.touched[field] && this.hasErrors) {
-      try {
-        this.schema.validateSyncAt(field, this.state);
-      } catch (err) {
-        return err.message;
-      }
+    const { error, touched } = this.state;
+    if (touched[field]) {
+      schema.validateAt(field, this.state).then(() => {
+        if (error[field] !== '') {
+          this.setState({
+            error: {
+              ...error,
+              [field]: '',
+            },
+          });
+        }
+      }).catch((err) => {
+        if (err.message !== error[field]) {
+          this.setState({
+            error: {
+              ...error,
+              [field]: err.message,
+            },
+          });
+        }
+      });
     }
+    return error[field];
   };
 
   render() {
+    const { sport, name, cricket } = this.state;
     console.log(this.state);
-    const { sport, name } = this.state;
     return (
       <form>
         <p><b>Name</b></p>
