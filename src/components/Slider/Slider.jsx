@@ -16,12 +16,10 @@ class Slider extends React.Component {
     const { random, duration, banners } = this.props;
     this.id = setInterval(() => {
       let { current } = this.state;
-      if (random && banners.length) {
-        current = getRandomNumber(banners.length);
-      } else if (banners.length) {
-        current = getNextRoundRobin(banners.length, current);
+      if (banners.length) {
+        const newBanner = random ? getRandomNumber(banners.length) : getNextRoundRobin(banners.length, current);
+        this.setState({ current: newBanner });
       }
-      this.setState({ current });
     }, duration);
   }
 
