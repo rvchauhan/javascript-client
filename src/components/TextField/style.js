@@ -11,21 +11,23 @@ font-weight: bold;
 `;
 
 const Input = styled.input`
+  width:99.6%;
+  height: 25px;
   ${(props) => props.value === 'Disabled input'
-  && css`
+    && css`
     width:99.6%;
     background-color: lightgrey;
     height: 25px;
 `};
 ${(props) => props.value === 'Accessible'
-&& css`
+    && css`
   width:99.8%;
   background-color: white;
   height: 25px;
   border: .5px solid grey;-
 `};
 ${(props) => props.value === '101'
-&& css`
+    && css`
   width:99.8%;
   background-color: white;
   border: .5px solid red;

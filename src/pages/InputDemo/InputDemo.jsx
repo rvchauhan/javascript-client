@@ -49,7 +49,7 @@ class InputDemo extends React.Component {
 
   render() {
     const { sport, name, cricket } = this.state;
-
+    console.log(this.state);
     return (
       <>
         <p><b>Name</b></p>
