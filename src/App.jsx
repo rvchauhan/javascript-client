@@ -1,5 +1,5 @@
 import React from 'react';
-<<<<<<< HEAD
+
 // import { ThemeProvider, Typography } from '@material-ui/core';
 // import Theme from './theme';
 // import ChildrenDemo from './pages/TextFieldDemo/ChildrenDemo';
