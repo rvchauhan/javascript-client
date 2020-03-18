@@ -14,7 +14,6 @@ export default class CalculatorDemo extends React.Component {
   render() {
     return (
       <>
-
         <Text first={7} second={4} operator="+" />
         <Text first={7} second={3} operator="-" />
         <Text first={7} second={20} operator="*" />
