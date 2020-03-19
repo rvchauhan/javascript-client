@@ -5,7 +5,6 @@ const AuthLayout = (props) => {
   const { children } = props;
   return (
     <div>
-      <p>Heelo</p>
       {children}
       <Footer />
     </div>

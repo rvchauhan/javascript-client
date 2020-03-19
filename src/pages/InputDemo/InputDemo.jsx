@@ -1,9 +1,11 @@
 import React from 'react';
-import { schema } from '../../config/constant';
+import {
+  schema, selectOptions, radioOptionsCricket, radioOptionsFootball,
+} from '../../config/constant';
 import TextField from '../../components/TextField/TextField';
 import SelectField from '../../components/SelectField/selectField';
 import { RadioGroup } from '../../components/RadioGroup/index';
-import { selectOptions, radioOptionsCricket, radioOptionsFootball } from '../../config/constant';
+
 import { Button } from '../../components/Button/index';
 
 
@@ -69,10 +71,10 @@ class InputDemo extends React.Component {
     schema.isValid(this.state)
       .then((valid) => {
         if (!valid !== hasError) {
-          this.setState({ hasError: !valid })
+          this.setState({ hasError: !valid });
         }
       });
-    return hasError
+    return hasError;
   }
 
   isTouched = (field) => {
@@ -112,7 +114,7 @@ class InputDemo extends React.Component {
   };
 
   render() {
-    const { sport, name, cricket } = this.state;
+    const { sport, name } = this.state;
     console.log(this.state);
     return (
       <form>
