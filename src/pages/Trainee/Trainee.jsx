@@ -12,9 +12,7 @@ const TraineeRoutes = (props) => {
     <Switch>
       <Route exact path={path} component={TraineeList} />
       <Route exact path={`${path}/:traineeId`} component={TraineeDetail} />
-
     </Switch>
   );
 };
 export default TraineeRoutes;
-

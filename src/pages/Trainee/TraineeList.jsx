@@ -32,6 +32,10 @@ class Trainee extends React.Component {
     // console.log("/?????", trainees[0].name)
     return (
       <>
+        <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+          ADD TRAINEE
+        </Button>
+        <FormDialog open={open} onClose={this.handleClose} onSubmit={() => this.handleSubmit} />
         <ul>
           {
             trainees && trainees.length && trainees.map((trainee) => (
@@ -44,10 +48,6 @@ class Trainee extends React.Component {
           }
 
         </ul>
-        <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
-          ADD TRAINEE
-        </Button>
-        <FormDialog open={open} onClose={this.handleClose} onSubmit={() => this.handleSubmit} />
       </>
     );
   }
