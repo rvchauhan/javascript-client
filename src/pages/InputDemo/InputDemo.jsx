@@ -12,8 +12,7 @@ class InputDemo extends React.Component {
     this.state = {
       name: '',
       sport: '',
-      cricket: '',
-      football: '',
+      position: '',
     };
   }
 
@@ -22,24 +21,19 @@ class InputDemo extends React.Component {
   }
 
   onChangeSelectOptions = (event) => {
-    let { cricket, football } = this.state;
-    cricket = '';
-    football = '';
-    this.setState({ sport: event.target.value, cricket, football });
+    let { position, sport } = this.state;
+    const sportvalue = event.target.value;
+    this.setState({
+      sport: sportvalue === 'Select' ? '' : sportvalue,
+      position: '',
+    });
   }
 
   onChangeRadioOption = (event) => {
-    let { cricket, football } = this.state;
-    const { sport } = this.state;
-    if (sport === 'football') {
-      cricket = '';
-      this.setState({ football: event.target.value, cricket });
-    } else if (sport === 'cricket') {
-      cricket = event.target.value;
-      football = '';
-      this.setState({ cricket: event.target.value, football });
-    }
+    let { position } = this.state;
+    this.setState({ position: event.target.value });
   }
+
 
   getRadioOptions = () => {
     const { sport } = this.state;
@@ -48,21 +42,17 @@ class InputDemo extends React.Component {
   }
 
   render() {
-    const { sport, name, cricket } = this.state;
+    const { sport, name, position } = this.state;
     console.log(this.state);
     return (
       <>
-        <p><b>Name</b></p>
-        <TextField onChange={this.onChangeTextField} value={name} />
-
-        <p><b>Select Your Game You Play?</b></p>
-        <SelectField defaultOption="Select" options={selectOptions} onChange={this.onChangeSelectOptions} value={sport} />
+        <TextField onChange={this.onChangeTextField} value={name} heading="Name" label="Name" />
+        <SelectField defaultOption="Select" options={selectOptions} onChange={this.onChangeSelectOptions} value={sport} heading="Select Your Game You Play?" />
 
         {
-          sport && (sport === 'cricket' || sport === 'football') && (
+          sport && (
             <>
-              <p><b>What you do ?</b></p>
-              <RadioGroup options={this.getRadioOptions()} onChange={this.onChangeRadioOption} value={cricket} />
+              <RadioGroup options={this.getRadioOptions()} onChange={this.onChangeRadioOption} value={position} heading="What you do ?" />
             </>
           )
         }

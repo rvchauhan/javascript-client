@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 
 const RadioGroup = (props) => {
   // console.log('inside radio group', props);
-  const { options, onChange, error } = props;
+  const { options, onChange, error, heading } = props;
   return (
     <>
+      <p><b>{heading}</b></p>
       {
         options && options.length && options.map(({ value, label }) => (
           <Fragment key={label}>

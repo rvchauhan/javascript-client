@@ -6,10 +6,11 @@ import Select from './style';
 const SelectField = (props) => {
   // console.log('inside select field', props);
   const {
-    options, defaultOption, onChange, value, error,
+    options, defaultOption, onChange, value, error, heading
   } = props;
   return (
     <>
+      <p><b>{heading}</b></p>
       <Select value={value} onChange={onChange}>
         {defaultOption && <option>{defaultOption}</option>}
         {
