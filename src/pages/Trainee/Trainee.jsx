@@ -2,7 +2,6 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import TraineeList from './TraineeList';
 import TraineeDetail from './TraineeDetail';
-import trainees from './data/trainee';
 
 const TraineeRoutes = (props) => {
   console.log(props);
