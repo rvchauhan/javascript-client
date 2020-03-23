@@ -1,14 +1,26 @@
 import React from 'react';
-import { Input, P } from './index';
+import PropTypes from 'prop-types';
+import { Input } from './index';
 
-function TextField({ value = '', disabled = '', error = '' }) {
+
+const TextField = (props) => {
+  const { onChange, value, heading, label } = props;
   return (
-    <>
-      <Input type="text" value={value} disabled={disabled} />
-      <P>
-        {error}
-      </P>
-    </>
+    <div>
+      <p><b>{heading}</b></p>
+      <Input type="text" onChange={onChange} value={value} label={label} />
+    </div>
   );
-}
+};
+
+TextField.propTypes = {
+  error: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
+};
+
+TextField.defaultProps = {
+  error: '',
+};
+
 export default TextField;
