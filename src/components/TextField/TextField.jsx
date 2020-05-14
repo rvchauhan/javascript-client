@@ -10,7 +10,7 @@ const TextField = (props) => {
   return (
     <div>
       <p><b>{heading}</b></p>
-      <Input type="text" onChange={onChange} value={value} label={label} onBlur={onBlur} />
+      <Input type="text" onChange={(event) => onChange(event)} value={value} label={label} onBlur={onBlur} />
       <P>
         {error}
       </P>
