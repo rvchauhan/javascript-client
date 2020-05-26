@@ -2,9 +2,14 @@
 import styled, { css } from 'styled-components';
 
 const Container = styled.div`
-border: 1px solid black;
-width:100%;
-height: 100%;
+width: 100%;
+padding: 12px 20px;
+margin: 8px 0;
+display: inline-block;
+border: 1px solid #ccc;
+border-radius: 4px;
+box-sizing: border-box;
+
 `;
 const Text = styled.div`
 font-weight: bold;
@@ -23,7 +28,7 @@ ${(props) => props.value === 'Accessible'
     && css`
   width:99.8%;
   background-color: white;
-  height: 25px;
+  height: 100px;
   border: .5px solid grey;-
 `};
 ${(props) => props.value === '101'
@@ -32,6 +37,14 @@ ${(props) => props.value === '101'
   background-color: white;
   border: .5px solid red;
   height: 25px
+`};
+${(props) => props.type === 'text'
+&& css`
+  width:99.8%;
+  background-color: white;
+  height: 30px;
+  border-radius: 5px;
+  border: .5px solid grey;-
 `};
 `;
 const P = styled.div`
