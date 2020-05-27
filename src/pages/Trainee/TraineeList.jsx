@@ -1,12 +1,10 @@
 import React from 'react';
 // import * as yup from 'yup';
-import { Link } from 'react-router-dom';
+import * as moment from 'moment';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
-import FormDialog from './index';
 import trainees from './data/trainee';
 import { Table } from '../../components/index';
-
 
 const UseStyles = (theme) => ({
   root: {
@@ -21,7 +19,14 @@ class Trainee extends React.Component {
     super(props);
     this.state = {
       open: false,
+      selected: '',
+      orderBy: '',
+      order: '',
     };
+  }
+
+  getDateFormat = (date) => {
+    return moment(date).format('dddd, MMMM Do YYYY, h:mm:ss');
   }
 
   handleClickOpen = () => {
@@ -36,32 +41,58 @@ class Trainee extends React.Component {
     this.setState({ open: false }, console.log(data));
   };
 
+  handleSelect = (event, data) => {
+    this.setState({ selected: event.target.value }, () => console.log(data));
+  };
+
+  handleSort = (field) => () => {
+    const { order } = this.state;
+    this.setState({
+      orderBy: field,
+      order: order === 'asc' ? 'desc' : 'asc',
+    });
+  }
+
+
   render() {
-    const { open } = this.state;
+    const { orderBy, order } = this.state;
     const { classes } = this.props;
     // const { trainees } = props;
     // console.log("/?????", trainees[0].name)
     return (
+
       <>
         <div className={classes.root}>
           <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
             ADD TRAINEE
           </Button>
         </div>
-        <Table id="id" data={trainees} column={[{ field: 'name', label: 'Name', align: 'center' }, { field: 'email', label: 'EmailAddress' }]} />
-        <FormDialog open={open} onClose={this.handleClose} onSubmit={() => this.handleSubmit} />
-        <ul>
-          {
-            trainees && trainees.length && trainees.map((trainee) => (
-              <li>
-                <Link to={`/Trainee/${trainee.id}`}>
-                  {trainee.name}
-                </Link>
-              </li>
-            ))
-          }
-
-        </ul>
+        <Table
+          id="id"
+          data={trainees}
+          column={[
+            {
+              field: 'name',
+              label: 'Name',
+              align: 'center',
+            },
+            {
+              field: 'email',
+              label: 'EmailAddress',
+              format: (value) => value && value.toUpperCase(),
+            },
+            {
+              field: 'createdAt',
+              label: 'Date',
+              align: 'left',
+              format: this.getDateFormat,
+            },
+          ]}
+          orderBy={orderBy}
+          order={order}
+          onSort={this.handleSort}
+          onSelect={this.handleSelect}
+        />
       </>
     );
   }
