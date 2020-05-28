@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
 import trainees from './data/trainee';
 import { Table } from '../../components/index';
+import AddDialog from './components/index';
 
 const UseStyles = (theme) => ({
   root: {
@@ -29,12 +30,8 @@ class Trainee extends React.Component {
     return moment(date).format('dddd, MMMM Do YYYY, h:mm:ss');
   }
 
-  handleClickOpen = () => {
-    this.setState({ open: true }, () => { console.log(this.state); });
-  };
-
-  handleClose = () => {
-    this.setState({ open: false }, () => { console.log(this.state); });
+  handleClick = (status) => {
+    this.setState({ open: status }, () => { console.log(this.state); });
   };
 
   handleSubmit = (data) => {
@@ -55,7 +52,7 @@ class Trainee extends React.Component {
 
 
   render() {
-    const { orderBy, order } = this.state;
+    const { orderBy, order, open } = this.state;
     const { classes } = this.props;
     // const { trainees } = props;
     // console.log("/?????", trainees[0].name)
@@ -63,10 +60,15 @@ class Trainee extends React.Component {
 
       <>
         <div className={classes.root}>
-          <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+          <Button variant="outlined" color="primary" onClick={() => this.handleClick(true)}>
             ADD TRAINEE
           </Button>
         </div>
+        <AddDialog
+          onClose={() => this.handleClick(false)}
+          onSubmit={() => this.handleSubmit}
+          open={open}
+        />
         <Table
           id="id"
           data={trainees}
