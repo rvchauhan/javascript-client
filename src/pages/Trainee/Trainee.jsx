@@ -12,28 +12,26 @@ class Trainee extends React.Component {
     };
   }
 
-  handleClickOpen = () => {
-    this.setState({ open: true }, () => { console.log(this.state); });
-  };
-
-  handleClose = () => {
-    this.setState({ open: false }, () => { console.log(this.state); });
+  handleClick = (status) => {
+    this.setState({ open: status }, () => { console.log(this.state); });
   };
 
   handleSubmit = (data) => {
-    this.setState({ open: false }, console.log(data));
+    this.setState({ open: false }, () => { console.log(data); });
   };
 
   render() {
     const { open } = this.state;
     return (
       <>
-        <NavBar />
-        <br />
-        <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+        <Button variant="outlined" color="primary" onClick={() => this.handleClick(true)}>
           ADD TRAINEE
         </Button>
-        <FormDialog open={open} onClose={this.handleClose} onSubmit={() => this.handleSubmit} />
+        <FormDialog
+          open={open}
+          onClose={() => this.handleClick(false)}
+          onSubmit={() => this.handleSubmit}
+        />
       </>
     );
   }
