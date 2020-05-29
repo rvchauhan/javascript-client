@@ -1,11 +1,14 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 // import * as yup from 'yup';
 import * as moment from 'moment';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
 import trainees from './data/trainee';
 import { Table } from '../../components/index';
-import AddDialog from './components/index';
+import { FormDialog, EditDialog, DeleteDialog } from './components/index';
 
 const UseStyles = (theme) => ({
   root: {
@@ -23,23 +26,53 @@ class Trainee extends React.Component {
       selected: '',
       orderBy: '',
       order: '',
+      EditOpen: false,
+      DelOpen: false,
+      page: 0,
+      rowsPerPage: 5,
+      editData: {},
+      deleteData: {},
     };
   }
 
-  getDateFormat = (date) => {
-    return moment(date).format('dddd, MMMM Do YYYY, h:mm:ss');
-  }
+  getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
   handleClick = (status) => {
     this.setState({ open: status }, () => { console.log(this.state); });
   };
 
-  handleSubmit = (data) => {
-    this.setState({ open: false }, console.log(data));
+  handleEditDialogopen = (data) => {
+    this.setState({ EditOpen: true, editData: data }, () => { console.log(this.state); });
+  }
+
+  handleRemoveDialogopen = (data) => {
+    this.setState({ DelOpen: true, deleteData: data }, () => { console.log(this.state); });
+  }
+
+  handleEditClick = (data) => {
+    this.setState({ EditOpen: false }, () => console.log(data));
+  };
+
+  handleDeleteClick = (data) => {
+    this.setState({ DelOpen: false }, () => console.log(data.data));
   };
 
   handleSelect = (event, data) => {
     this.setState({ selected: event.target.value }, () => console.log(data));
+  };
+
+  handleChangePage = (event, newPage) => {
+    this.setState({
+      page: newPage,
+    });
+  };
+
+  handleChangeRowsPerPage = (event) => {
+    this.setState({
+      rowsPerPage: event.target.value,
+      page: 0,
+
+    });
   };
 
   handleSort = (field) => () => {
@@ -50,24 +83,34 @@ class Trainee extends React.Component {
     });
   }
 
-
   render() {
-    const { orderBy, order, open } = this.state;
+    const {
+      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData, deleteData,
+    } = this.state;
     const { classes } = this.props;
-    // const { trainees } = props;
-    // console.log("/?????", trainees[0].name)
     return (
-
       <>
         <div className={classes.root}>
           <Button variant="outlined" color="primary" onClick={() => this.handleClick(true)}>
             ADD TRAINEE
           </Button>
         </div>
-        <AddDialog
+        <FormDialog
           onClose={() => this.handleClick(false)}
-          onSubmit={() => this.handleSubmit}
+          onSubmit={() => this.handleClick(true)}
           open={open}
+        />
+        <EditDialog
+          data={editData}
+          onClose={this.handleEditClick}
+          onSubmit={this.handleEditClick}
+          open={EditOpen}
+        />
+        <DeleteDialog
+          data={deleteData}
+          onClose={this.handleDeleteClick}
+          onSubmit={this.handleDeleteClick}
+          open={DelOpen}
         />
         <Table
           id="id"
@@ -90,14 +133,29 @@ class Trainee extends React.Component {
               format: this.getDateFormat,
             },
           ]}
+          actions={[
+            {
+              icon: <EditIcon />,
+              handler: this.handleEditDialogopen,
+            },
+            {
+
+              icon: <DeleteIcon />,
+              handler: this.handleRemoveDialogopen,
+            },
+          ]}
           orderBy={orderBy}
           order={order}
           onSort={this.handleSort}
           onSelect={this.handleSelect}
+          count={100}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onChangeRowsPerPage={this.handleChangeRowsPerPage}
+          onChangePage={this.handleChangePage}
         />
       </>
     );
   }
 }
-
 export default withStyles(UseStyles)(Trainee);
