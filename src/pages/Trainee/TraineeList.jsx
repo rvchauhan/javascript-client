@@ -37,8 +37,8 @@ class Trainee extends React.Component {
 
   getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
-  handleClick = (status) => {
-    this.setState({ open: status }, () => { console.log(this.state); });
+  handleClick = (status, data) => {
+    this.setState({ open: status }, () => { console.log(data); });
   };
 
   handleEditDialogopen = (data) => {
@@ -97,7 +97,7 @@ class Trainee extends React.Component {
         </div>
         <FormDialog
           onClose={() => this.handleClick(false)}
-          onSubmit={() => this.handleClick(true)}
+          onSubmit={(data) => this.handleClick(false, data)}
           open={open}
         />
         <EditDialog

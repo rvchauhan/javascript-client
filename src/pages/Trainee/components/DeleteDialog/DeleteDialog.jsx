@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
+import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import * as moment from 'moment';
 import PropTypes from 'prop-types';
+import { MyContext } from '../../../../Context/SnackBarProvider/index';
 
 export default class DeleteDialog extends Component {
   constructor(props) {
@@ -12,6 +14,7 @@ export default class DeleteDialog extends Component {
     this.state = {
       name: '',
       email: '',
+      message: '',
     };
   }
 
@@ -23,32 +26,58 @@ export default class DeleteDialog extends Component {
     this.setState({ open: false });
   };
 
+  handleSnackBarMessage = (data, openSnackBar) => {
+    const date = '2019-02-14T18:15:11.778Z';
+    const isAfter = (moment(data.createdAt).isAfter(date));
+    if (isAfter) {
+      this.setState({
+        message: 'This is a success Message! ',
+      }, () => {
+        const { message } = this.state;
+        openSnackBar(message, 'success');
+      });
+    } else {
+      this.setState({
+        message: 'This is an error',
+      }, () => {
+        const { message } = this.state;
+        openSnackBar(message, 'error');
+      });
+    }
+  }
+
+
   render() {
     const {
       open, onClose, onSubmit, data,
     } = this.props;
+
     return (
-      <div>
-        <Dialog open={open} onClose={() => this.handleClose()} aria-labelledby="form-dialog-title" fullWidth>
-          <DialogTitle id="form-dialog-title">Delete Item</DialogTitle>
-          <DialogContentText>
-            Do you really want to remove this item?
-          </DialogContentText>
-          <DialogActions>
-            <Button onClick={onClose} color="primary">
-              Cancel
-            </Button>
-            <Button
-              onClick={() => onSubmit({
-                data,
-              })}
-              color="primary"
-            >
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
+      <Dialog open={open} onClose={() => this.handleClose()} aria-labelledby="form-dialog-title" fullWidth>
+        <DialogTitle id="form-dialog-title">Delete Item</DialogTitle>
+        <DialogContentText>
+          Do you really want to remove this item?
+        </DialogContentText>
+        <DialogActions>
+          <Button onClick={onClose} color="primary">
+            Cancel
+          </Button>
+          <MyContext.Consumer>
+            {({ openSnackBar }) => (
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={() => {
+                  onSubmit({ data });
+                  this.handleSnackBarMessage(data, openSnackBar);
+                }}
+              >
+                Delete
+              </Button>
+            )}
+          </MyContext.Consumer>
+        </DialogActions>
+      </Dialog>
     );
   }
 }

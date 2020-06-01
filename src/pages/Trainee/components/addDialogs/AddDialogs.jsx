@@ -15,6 +15,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Grid from '@material-ui/core/Grid';
 import PropTypes from 'prop-types';
+import { MyContext } from '../../../../Context/SnackBarProvider/index';
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required').min(3),
@@ -191,19 +192,27 @@ class FormDialog extends Component {
           </Grid>
         </DialogContent>
         <DialogActions>
+
           <Button onClick={onClose} color="primary">
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => onSubmit()({
-              name, email, password, confirmPassword,
-            })}
-            disabled={hasError}
-          >
-            Submit
-          </Button>
+          <MyContext.Consumer>
+            {({ openSnackBar }) => (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  openSnackBar('This is a success message ! ', 'success');
+                  onSubmit({
+                    name, email, password, confirmPassword,
+                  });
+                }}
+                disabled={hasError}
+              >
+                Submit
+              </Button>
+            )}
+          </MyContext.Consumer>
         </DialogActions>
       </Dialog>
     );

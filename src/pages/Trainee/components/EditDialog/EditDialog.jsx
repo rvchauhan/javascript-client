@@ -10,6 +10,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
+import { MyContext } from '../../../../Context/SnackBarProvider/index';
 
 
 export default class EditDialog extends Component {
@@ -114,7 +115,7 @@ export default class EditDialog extends Component {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  onChange={this.handleEmailChange('email')}
+                  onChange={this.handleEmailChange}
                   autoFocus
                   // eslint-disable-next-line react/prop-types
                   defaultValue={data.email}
@@ -136,12 +137,20 @@ export default class EditDialog extends Component {
             <Button onClick={onClose} color="primary">
               Cancel
             </Button>
-            <Button
-              onClick={() => { onSubmit({ name, email }); this.formReset(); }}
-              color="primary"
-            >
-              Submit
-            </Button>
+            <MyContext.Consumer>
+              {({ openSnackBar }) => (
+                <Button
+                  onClick={() => {
+                    onSubmit({ name, email });
+                    this.formReset();
+                    openSnackBar('This is a success message ! ', 'success');
+                  }}
+                  color="primary"
+                >
+                  Submit
+                </Button>
+              )}
+            </MyContext.Consumer>
           </DialogActions>
         </Dialog>
       </div>
