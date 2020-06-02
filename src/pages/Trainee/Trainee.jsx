@@ -21,7 +21,6 @@ class Trainee extends React.Component {
   };
 
   render() {
-    console.log("??????//////////////////////")
     const { open } = this.state;
     return (
       <>
