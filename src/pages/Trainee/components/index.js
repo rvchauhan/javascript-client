@@ -1,3 +1,3 @@
-import FormDialog from './addDialogs/index';
+import FormDialog from './FormDialog/index';
 
 export default FormDialog;
