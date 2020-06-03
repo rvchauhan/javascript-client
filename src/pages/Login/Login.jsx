@@ -74,7 +74,7 @@ class Login extends Component {
   renderRedirect = () => {
     const { redirect } = this.state;
     if (redirect) {
-      return <Redirect to="/trainee" />
+      return <Redirect to="/trainee" />;
     }
   }
 
@@ -82,14 +82,16 @@ class Login extends Component {
     this.setState({ [prop]: event.target.value });
   };
 
-  onClickHandler = async (data, openSnackBar) => {
+  onClickHandler = async (data, openSnackBar) => {;
     this.setState({
       loading: true,
       hasError: true,
     });
-    await callApi(data, 'post', 'user/login');
+    const response = await callApi({ data }, 'post', 'user/login');
+    ls.set('token', response.data);
     this.setState({ loading: false });
-    if (ls.get('token')) {
+    const Token = ls.get('token');
+    if (Token !== 'undefined') {
       this.setState({
         redirect: true,
         hasError: false,

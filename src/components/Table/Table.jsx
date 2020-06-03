@@ -11,6 +11,8 @@ import PropTypes from 'prop-types';
 import {
   withStyles, createStyles, makeStyles,
 } from '@material-ui/core/styles';
+import hoc from '../HOC/withLoaderAndMessage';
+
 
 const useStyles = makeStyles({
   table: {
@@ -26,13 +28,7 @@ const StyledTableRow = withStyles((theme) => createStyles({
   },
 }))(TableRow);
 
-// handleChangeRowsPerPage = (event) => {
-//   setRowsPerPage(parseInt(event.target.value, 10));
-//   setPage(0);
-// };
-
-
-export default function SimpleTable(props) {
+function SimpleTable(props) {
   const classes = useStyles();
   const {
     // eslint-disable-next-line max-len
@@ -119,3 +115,5 @@ SimpleTable.defaultProps = {
   orderBy: '',
   order: 'asc',
 };
+
+export default hoc(SimpleTable);

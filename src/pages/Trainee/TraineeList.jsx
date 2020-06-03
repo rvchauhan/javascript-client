@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-// import * as yup from 'yup';
 import * as moment from 'moment';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
-import trainees from './data/trainee';
 import { Table } from '../../components/index';
 import { FormDialog, EditDialog, DeleteDialog } from './components/index';
+import callApi from '../../libs/utils/Api';
+import { MyContext } from '../../Context/SnackBarProvider/index';
 
 const UseStyles = (theme) => ({
   root: {
@@ -28,10 +28,13 @@ class Trainee extends React.Component {
       order: '',
       EditOpen: false,
       DelOpen: false,
+      dataObj: [],
+      loading: false,
       page: 0,
-      rowsPerPage: 5,
+      rowsPerPage: 10,
       editData: {},
       deleteData: {},
+      Count: 0,
     };
   }
 
@@ -62,6 +65,7 @@ class Trainee extends React.Component {
   };
 
   handleChangePage = (event, newPage) => {
+    this.componentDidMount(newPage);
     this.setState({
       page: newPage,
     });
@@ -83,9 +87,31 @@ class Trainee extends React.Component {
     });
   }
 
+
+  componentDidMount = (newPage) => {
+    const { rowsPerPage } = this.state;
+    this.setState({ loading: true });
+    const value = this.context;
+    callApi({ params: { skip: newPage * rowsPerPage, limit: rowsPerPage * (newPage + 1) } }, 'get', 'trainee').then((response) => {
+      if (response.data === undefined) {
+        this.setState({
+          loading: false,
+          message: 'This is an error',
+        }, () => {
+          const { message } = this.state;
+          value.openSnackBar(message, 'error');
+        });
+      } else {
+        const { records, count } = response.data;
+        this.setState({ dataObj: records, loading: false, Count: count });
+        return response;
+      }
+    });
+  }
+
   render() {
     const {
-      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData, deleteData,
+      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData, deleteData, dataObj, loading, Count,
     } = this.state;
     const { classes } = this.props;
     return (
@@ -113,8 +139,9 @@ class Trainee extends React.Component {
           open={DelOpen}
         />
         <Table
+          loader={loading}
           id="id"
-          data={trainees}
+          data={dataObj}
           column={[
             {
               field: 'name',
@@ -148,7 +175,7 @@ class Trainee extends React.Component {
           order={order}
           onSort={this.handleSort}
           onSelect={this.handleSelect}
-          count={100}
+          count={Count}
           page={page}
           rowsPerPage={rowsPerPage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
@@ -158,4 +185,7 @@ class Trainee extends React.Component {
     );
   }
 }
+
+Trainee.contextType = MyContext;
+
 export default withStyles(UseStyles)(Trainee);

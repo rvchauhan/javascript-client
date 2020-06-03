@@ -3,7 +3,8 @@ import {
 } from './TextField/style';
 
 import Table from './Table/index';
+import hoc from './HOC/index';
 
 export {
-  Input, Container, Text, P, Table,
+  Input, Container, Text, P, Table, hoc,
 };
