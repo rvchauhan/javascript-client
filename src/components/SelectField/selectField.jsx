@@ -6,16 +6,19 @@ import Select, { P } from './style';
 const SelectField = (props) => {
   // console.log('inside select field', props);
   const {
-    options, defaultOption, onChange, values, error, onBlur,
+    options, defaultOption, onChange, values, error, heading, onBlur,
   } = props;
   return (
     <>
+      <p><b>{heading}</b></p>
       <Select value={values} onChange={onChange} onBlur={onBlur}>
         {defaultOption && <option>{defaultOption}</option>}
         {
           options && options.length && options.map(({ value, label }) => {
             return (
-              <option key={label} value={value} onChange={onChange}>{label}</option>
+              <option key={label} value={value} onChange={(event) => onChange(event)}>
+                {label}
+              </option>
             );
           })
         }
@@ -33,6 +36,8 @@ SelectField.propTypes = {
   defaultOption: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   values: PropTypes.string.isRequired,
+  heading: PropTypes.string.isRequired,
+  onBlur: PropTypes.func.isRequired,
 };
 SelectField.defaultProps = {
   error: '',

@@ -3,9 +3,10 @@ import React from 'react';
 import * as moment from 'moment';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
+import PropTypes from 'prop-types';
+import FormDialog from './index';
 import trainees from './data/trainee';
 import { Table } from '../../components/index';
-import AddDialog from './components/index';
 
 const UseStyles = (theme) => ({
   root: {
@@ -22,21 +23,16 @@ class Trainee extends React.Component {
       open: false,
       selected: '',
       orderBy: '',
-      order: '',
+      order: 'asc',
     };
   }
 
-  getDateFormat = (date) => {
-    return moment(date).format('dddd, MMMM Do YYYY, h:mm:ss');
-  }
+  getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
-  handleClick = (status) => {
-    this.setState({ open: status }, () => { console.log(this.state); });
+  handleClick = (status, data) => {
+    this.setState({ open: status }, () => { console.log(this.state, data); });
   };
 
-  handleSubmit = (data) => {
-    this.setState({ open: false }, console.log(data));
-  };
 
   handleSelect = (event, data) => {
     this.setState({ selected: event.target.value }, () => console.log(data));
@@ -55,19 +51,17 @@ class Trainee extends React.Component {
     const { orderBy, order, open } = this.state;
     const { classes } = this.props;
     // const { trainees } = props;
-    // console.log("/?????", trainees[0].name)
     return (
-
       <>
         <div className={classes.root}>
           <Button variant="outlined" color="primary" onClick={() => this.handleClick(true)}>
             ADD TRAINEE
           </Button>
         </div>
-        <AddDialog
-          onClose={() => this.handleClick(false)}
-          onSubmit={() => this.handleSubmit}
+        <FormDialog
           open={open}
+          onClose={() => this.handleClick(false)}
+          onSubmit={(data) => this.handleClick(false, data)}
         />
         <Table
           id="id"
@@ -90,7 +84,7 @@ class Trainee extends React.Component {
               format: this.getDateFormat,
             },
           ]}
-          orderBy={orderBy}
+          orderby={orderBy}
           order={order}
           onSort={this.handleSort}
           onSelect={this.handleSelect}
@@ -99,5 +93,9 @@ class Trainee extends React.Component {
     );
   }
 }
+
+Trainee.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.string).isRequired,
+};
 
 export default withStyles(UseStyles)(Trainee);
