@@ -4,6 +4,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,13 +26,13 @@ export default function ButtonAppBar() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-           Trainee Portal
+            Trainee Portal
           </Typography>
-          <Button color="inherit">Trainee</Button>
-          <Button color="inherit">TextField</Button>
-          <Button color="inherit">InputDemo</Button>
-          <Button color="inherit">ChildrenDemo</Button>
-          <Button color="inherit">Login</Button>
+          <Button component={Link} to="/Trainee" color="inherit">Trainee</Button>
+          <Button component={Link} to="/TextFieldDemo" color="inherit">TextField</Button>
+          <Button component={Link} to="/InputDemo" color="inherit">InputDemo</Button>
+          <Button component={Link} to="/ChildrenDemo" color="inherit">ChildrenDemo</Button>
+          <Button color="inherit">Logout</Button>
         </Toolbar>
       </AppBar>
     </div>

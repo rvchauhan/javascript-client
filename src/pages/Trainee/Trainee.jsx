@@ -1,8 +1,6 @@
 import React from 'react';
-// import * as yup from 'yup';
 import Button from '@material-ui/core/Button';
 import FormDialog from './index';
-import NavBar from '../Components/index';
 
 class Trainee extends React.Component {
   constructor(props) {
@@ -36,5 +34,4 @@ class Trainee extends React.Component {
     );
   }
 }
-
 export default Trainee;

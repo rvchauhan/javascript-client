@@ -9,9 +9,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonIcon from '@material-ui/icons/Person';
-import PropTypes from 'prop-types';
 import EmailIcon from '@material-ui/icons/Email';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import schema from './helper';
 
