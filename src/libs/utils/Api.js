@@ -6,6 +6,7 @@ const ls = require('local-storage');
 const callApi = async (data, method, url) => {
   try {
     const baseUrl = process.env.REACT_APP_BASE_URL + url;
+    console.log(baseUrl);
     const response = await axios({
       method,
       url: baseUrl,
@@ -15,7 +16,6 @@ const callApi = async (data, method, url) => {
       },
     });
     return response.data;
-
   } catch (error) {
     console.log('Inside catch');
     return { status: 'error', message: 'This is a error message' };

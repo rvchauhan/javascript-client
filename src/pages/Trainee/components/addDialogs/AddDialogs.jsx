@@ -68,6 +68,7 @@ class FormDialog extends Component {
       loading: true,
       hasError: true,
     });
+    const { onSubmit } = this.props;
     const response = await callApi({ data }, 'post', 'trainee');
     this.setState({ loading: false });
     if (response.status === 'ok') {
@@ -76,6 +77,7 @@ class FormDialog extends Component {
         message: 'This is a success message',
       }, () => {
         const { message } = this.state;
+        onSubmit(data);
         openSnackBar(message, 'success');
       });
     } else {
@@ -102,7 +104,6 @@ class FormDialog extends Component {
 
   isTouched = (field) => {
     const { touched } = this.state;
-    console.log('field', field);
     this.setState({
       touched: {
         ...touched,

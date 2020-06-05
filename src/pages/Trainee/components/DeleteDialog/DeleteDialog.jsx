@@ -4,9 +4,10 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import * as moment from 'moment';
 import PropTypes from 'prop-types';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { MyContext } from '../../../../Context/SnackBarProvider/index';
+import callAPi from '../../../../libs/utils/Api';
 
 export default class DeleteDialog extends Component {
   constructor(props) {
@@ -15,6 +16,7 @@ export default class DeleteDialog extends Component {
       name: '',
       email: '',
       message: '',
+      loading: false,
     };
   }
 
@@ -26,19 +28,25 @@ export default class DeleteDialog extends Component {
     this.setState({ open: false });
   };
 
-  handleSnackBarMessage = (data, openSnackBar) => {
-    const date = '2019-02-14T18:15:11.778Z';
-    const isAfter = (moment(data.createdAt).isAfter(date));
-    if (isAfter) {
+  onClickHandler = async (data, openSnackBar) => {
+    this.setState({
+      loading: true,
+    });
+    const { onSubmit } = this.props;
+    const { originalId: id } = data;
+    const response = await callAPi({}, 'delete', `trainee/${id}`);
+    this.setState({ loading: false });
+    if (response.status === 'ok') {
       this.setState({
-        message: 'This is a success Message! ',
+        message: 'This is a success message',
       }, () => {
         const { message } = this.state;
+        onSubmit(data);
         openSnackBar(message, 'success');
       });
     } else {
       this.setState({
-        message: 'This is an error',
+        message: 'error in submitting',
       }, () => {
         const { message } = this.state;
         openSnackBar(message, 'error');
@@ -49,9 +57,9 @@ export default class DeleteDialog extends Component {
 
   render() {
     const {
-      open, onClose, onSubmit, data,
+      open, onClose, data,
     } = this.props;
-
+    const { loading } = this.state;
     return (
       <Dialog open={open} onClose={() => this.handleClose()} aria-labelledby="form-dialog-title" fullWidth>
         <DialogTitle id="form-dialog-title">Delete Item</DialogTitle>
@@ -67,12 +75,16 @@ export default class DeleteDialog extends Component {
               <Button
                 color="primary"
                 variant="contained"
+                disabled={loading}
                 onClick={() => {
-                  onSubmit({ data });
-                  this.handleSnackBarMessage(data, openSnackBar);
+                  this.onClickHandler(data, openSnackBar);
                 }}
               >
-                Delete
+                {loading && (
+                  <CircularProgress size={15} />
+                )}
+                {loading && <span>Deleting</span>}
+                {!loading && <span>Delete</span>}
               </Button>
             )}
           </MyContext.Consumer>
@@ -85,6 +97,6 @@ export default class DeleteDialog extends Component {
 DeleteDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
   data: PropTypes.objectOf(PropTypes.string).isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };

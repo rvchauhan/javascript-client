@@ -11,13 +11,6 @@ const hoc = (WrappedComponent) => (props) => {
       </Box>
     );
   }
-  if (!count) {
-    return (
-      <Box paddingLeft={50}>
-        <h2>Oops No more Trainees</h2>
-      </Box>
-    );
-  }
   return (<WrappedComponent loader={loader} count={count} {...rest} />);
 };
 
