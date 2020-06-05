@@ -19,7 +19,6 @@ const useStyles = makeStyles({
 export default function SimpleTable(props) {
   const classes = useStyles();
   const { id, column, data } = props;
-  // console.log(">>>>::::", column, data);
   return (
     <TableContainer component={Paper}>
       <Table className={classes.table} aria-label="simple table">

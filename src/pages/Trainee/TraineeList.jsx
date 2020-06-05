@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import FormDialog from './index';
 import trainees from './data/trainee';
 import { Table } from '../../components/index';
@@ -40,7 +41,6 @@ class Trainee extends React.Component {
     const { open } = this.state;
     const { classes } = this.props;
     // const { trainees } = props;
-    // console.log("/?????", trainees[0].name)
     return (
       <>
         <div className={classes.root}>
@@ -48,8 +48,22 @@ class Trainee extends React.Component {
             ADD TRAINEE
           </Button>
         </div>
-        <Table id="id" data={trainees} column={[{ field: 'name', label: 'Name', align: 'center' }, { field: 'email', label: 'EmailAddress' }]} />
         <FormDialog open={open} onClose={this.handleClose} onSubmit={() => this.handleSubmit} />
+        <Table
+          id="id"
+          data={trainees}
+          column={[
+            {
+              field: 'name',
+              label: 'Name',
+              align: 'center',
+            },
+            {
+              field: 'email',
+              label: 'EmailAddress',
+            },
+          ]}
+        />
         <ul>
           {
             trainees && trainees.length && trainees.map((trainee) => (
@@ -66,5 +80,9 @@ class Trainee extends React.Component {
     );
   }
 }
+
+Trainee.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.string).isRequired,
+};
 
 export default withStyles(UseStyles)(Trainee);
