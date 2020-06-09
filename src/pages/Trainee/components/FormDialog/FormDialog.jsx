@@ -188,7 +188,7 @@ class FormDialog extends Component {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => onSubmit()({
+            onClick={() => onSubmit({
               name, email, password, confirmPassword,
             })}
             disabled={hasError}
@@ -204,7 +204,7 @@ class FormDialog extends Component {
 export default withStyles(useStyles)(FormDialog);
 
 FormDialog.propTypes = {
-  // value: PropTypes.string.isRequired,
+  classes: PropTypes.objectOf(PropTypes.string).isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
