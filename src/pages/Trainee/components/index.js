@@ -1,4 +1,4 @@
-import FormDialog from './addDialogs/index';
+import FormDialog from './FormDialog/index';
 import EditDialog from './EditDialog/index';
 import DeleteDialog from './DeleteDialog/index';
 

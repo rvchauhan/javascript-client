@@ -96,7 +96,7 @@ export default class EditDialog extends Component {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
-                  onChange={this.handleNameChange}
+                  onChange={() => this.handleNameChange()}
                   autoFocus
                   // eslint-disable-next-line react/prop-types
                   defaultValue={data.name}
@@ -114,7 +114,7 @@ export default class EditDialog extends Component {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  onChange={this.handleEmailChange('email')}
+                  onChange={() => this.handleEmailChange('email')}
                   autoFocus
                   // eslint-disable-next-line react/prop-types
                   defaultValue={data.email}

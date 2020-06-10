@@ -6,6 +6,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import trainees from './data/trainee';
 import { Table } from '../../components/index';
 import { FormDialog, EditDialog, DeleteDialog } from './components/index';
@@ -25,11 +26,11 @@ class Trainee extends React.Component {
       open: false,
       selected: '',
       orderBy: '',
-      order: '',
+      order: 'asc',
       EditOpen: false,
       DelOpen: false,
       page: 0,
-      rowsPerPage: 5,
+      rowsPerPage: 10,
       editData: {},
       deleteData: {},
     };
@@ -37,8 +38,8 @@ class Trainee extends React.Component {
 
   getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
-  handleClick = (status) => {
-    this.setState({ open: status }, () => { console.log(this.state); });
+  handleClick = (status, data) => {
+    this.setState({ open: status }, () => { console.log(this.state, data); });
   };
 
   handleEditDialogopen = (data) => {
@@ -88,6 +89,7 @@ class Trainee extends React.Component {
       orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData, deleteData,
     } = this.state;
     const { classes } = this.props;
+    // const { trainees } = props;
     return (
       <>
         <div className={classes.root}>
@@ -96,9 +98,9 @@ class Trainee extends React.Component {
           </Button>
         </div>
         <FormDialog
-          onClose={() => this.handleClick(false)}
-          onSubmit={() => this.handleClick(true)}
           open={open}
+          onClose={() => this.handleClick(false)}
+          onSubmit={(data) => this.handleClick(false, data)}
         />
         <EditDialog
           data={editData}
@@ -158,4 +160,9 @@ class Trainee extends React.Component {
     );
   }
 }
+
+Trainee.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.string).isRequired,
+};
+
 export default withStyles(UseStyles)(Trainee);
