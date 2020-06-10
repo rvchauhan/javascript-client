@@ -31,14 +31,14 @@ export default class DeleteDialog extends Component {
     const isAfter = (moment(data.createdAt).isAfter(date));
     if (isAfter) {
       this.setState({
-        message: 'This is a success Message! ',
+        message: 'Deleted Successfully ',
       }, () => {
         const { message } = this.state;
         openSnackBar(message, 'success');
       });
     } else {
       this.setState({
-        message: 'This is an error',
+        message: 'Error While Deleting',
       }, () => {
         const { message } = this.state;
         openSnackBar(message, 'error');

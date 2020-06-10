@@ -47,15 +47,11 @@ export const radioOptionsFootball = [
 ];
 
 const schema = yup.object().shape({
-  name: yup.string().required('Please Enter your Name').min(3, 'Please enter no less than 3 characters'),
+  name: yup.string().min(3, 'Please enter no less than 3 characters').required('Please Enter your Name'),
   sport: yup.string().required('Please select a sport'),
-  football: yup.string().when('sport', {
-    is: 'football',
-    then: yup.string().required('Select option'),
-  }),
-  cricket: yup.string().when('sport', {
-    is: 'cricket',
-    then: yup.string().required('Select option'),
+  position: yup.string().required().when('sport', {
+    is: 'cricket' || 'football',
+    then: yup.string().required('position is a required field'),
   }),
 });
 export { schema };

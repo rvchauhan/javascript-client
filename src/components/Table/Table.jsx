@@ -36,7 +36,7 @@ export default function SimpleTable(props) {
   const classes = useStyles();
   const {
     // eslint-disable-next-line max-len
-    id, column, data, onSelect, onSort, orderBy, order, actions, count, rowsPerPage, page, onChangePage, onChangeRowsPerPage,
+    id, column, data, onSelect, onSort, orderby, order, actions, count, rowsPerPage, page, onChangePage, onChangeRowsPerPage,
   } = props;
   return (
     <>
@@ -50,8 +50,8 @@ export default function SimpleTable(props) {
                     <TableCell align={align} className={classes.column}>
                       <TableSortLabel
                         align={align}
-                        active={orderBy === field}
-                        direction={orderBy === field ? order : 'asc'}
+                        active={orderby === field}
+                        direction={orderby === field ? order : 'asc'}
                         onClick={onSort(field)}
                       >
                         {label}
@@ -69,7 +69,7 @@ export default function SimpleTable(props) {
                 <StyledTableRow hover key={element[id]}>
                   {
                     column && column.length && column.map(({ align, field, format }) => (
-                      <TableCell onClick={(event) => onSelect(event, element.name)} align={align} component="th" scope="row" order={order} orderBy={orderBy}>
+                      <TableCell onClick={(event) => onSelect(event, element.name)} align={align} component="th" scope="row" order={order} orderBy={orderby}>
                         {format ? format(element[field]) : element[field]}
                       </TableCell>
                     ))
@@ -106,7 +106,7 @@ SimpleTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   onSelect: PropTypes.func.isRequired,
   onSort: PropTypes.func.isRequired,
-  orderBy: PropTypes.string,
+  orderby: PropTypes.string,
   order: PropTypes.oneOf(['asc', 'desc']),
   count: PropTypes.number.isRequired,
   page: PropTypes.number.isRequired,
@@ -116,6 +116,6 @@ SimpleTable.propTypes = {
 };
 
 SimpleTable.defaultProps = {
-  orderBy: '',
+  orderby: '',
   order: 'asc',
 };

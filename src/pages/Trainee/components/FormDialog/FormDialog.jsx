@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import * as yup from 'yup';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -11,9 +10,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonIcon from '@material-ui/icons/Person';
-import EmailIcon from '@material-ui/icons/Email';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Grid from '@material-ui/core/Grid';
+import EmailIcon from '@material-ui/icons/Email';
+import * as yup from 'yup'
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import PropTypes from 'prop-types';
 import { MyContext } from '../../../../Context/SnackBarProvider/index';
 
@@ -222,7 +222,7 @@ class FormDialog extends Component {
 export default withStyles(useStyles)(FormDialog);
 
 FormDialog.propTypes = {
-  // value: PropTypes.string.isRequired,
+  classes: PropTypes.objectOf(PropTypes.string).isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,

@@ -6,6 +6,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import trainees from './data/trainee';
 import { Table } from '../../components/index';
 import { FormDialog, EditDialog, DeleteDialog } from './components/index';
@@ -96,9 +97,9 @@ class Trainee extends React.Component {
           </Button>
         </div>
         <FormDialog
+          open={open}
           onClose={() => this.handleClick(false)}
           onSubmit={(data) => this.handleClick(false, data)}
-          open={open}
         />
         <EditDialog
           data={editData}
@@ -158,4 +159,9 @@ class Trainee extends React.Component {
     );
   }
 }
+
+Trainee.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.string).isRequired,
+};
+
 export default withStyles(UseStyles)(Trainee);
