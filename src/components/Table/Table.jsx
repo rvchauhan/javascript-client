@@ -8,6 +8,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import PropTypes from 'prop-types';
 import {
   withStyles, createStyles, makeStyles,
@@ -33,7 +34,7 @@ function SimpleTable(props) {
   const classes = useStyles();
   const {
     // eslint-disable-next-line max-len
-    id, column, data, onSelect, onSort, orderby, order, actions, count, rowsPerPage, page, onChangePage, onChangeRowsPerPage,
+    id, column, data, onSelect, onSort, orderby, order, actions, count, rowsPerPage, page, onChangePage, onChangeRowsPerPage, loader,
   } = props;
   return (
     <>
@@ -59,26 +60,36 @@ function SimpleTable(props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.length ? (
+              {data.length || loader ? (
                 <>
-                  {data.map((element) => (
-                    <StyledTableRow hover key={element[id]}>
+                  {loader ? (
+                    <Box paddingleft="80%">
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <>
                       {
-                        column && column.length && column.map(({ align, field, format }) => (
-                          <TableCell onClick={(event) => onSelect(event, element.name)} align={align} component="th" scope="row" order={order} orderby={orderby}>
-                            {format ? format(element[field]) : element[field]}
-                          </TableCell>
+                        data.map((element) => (
+                          <StyledTableRow hover key={element[id]}>
+                            {
+                              column && column.length && column.map(({ align, field, format }) => (
+                                <TableCell onClick={(event) => onSelect(event, element.name)} align={align} component="th" scope="row" order={order} orderby={orderby}>
+                                  {format ? format(element[field]) : element[field]}
+                                </TableCell>
+                              ))
+                            }
+                            {actions && actions.length && actions.map(({ icon, handler }) => (
+                              <TableCell>
+                                <Button onClick={() => handler(element)}>
+                                  {icon}
+                                </Button>
+                              </TableCell>
+                            ))}
+                          </StyledTableRow>
                         ))
                       }
-                      {actions && actions.length && actions.map(({ icon, handler }) => (
-                        <TableCell>
-                          <Button onClick={() => handler(element)}>
-                            {icon}
-                          </Button>
-                        </TableCell>
-                      ))}
-                    </StyledTableRow>
-                  ))}
+                    </>
+                  )}
                 </>
               ) : <Box paddingLeft="50%"><h2> OOPS NO MORE TRAINEES</h2></Box>}
             </TableBody>
@@ -111,6 +122,7 @@ SimpleTable.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
   onChangeRowsPerPage: PropTypes.func.isRequired,
   onChangePage: PropTypes.func.isRequired,
+  loader: PropTypes.bool.isRequired,
 };
 
 SimpleTable.defaultProps = {

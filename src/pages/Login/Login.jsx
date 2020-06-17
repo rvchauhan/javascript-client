@@ -25,7 +25,6 @@ const schema = yup.object().shape({
       'must contain 8 characters at \n least one uppercase one lowercase \n and one number'),
 });
 
-const ls = require('local-storage');
 
 const useStyles = (theme) => ({
   box: {
@@ -92,9 +91,8 @@ class Login extends Component {
       });
       const { loginUser } = this.props;
       const response = await loginUser({ variables: { email, password } });
-      ls.set('token', response.data.loginUser);
+      localStorage.setItem('token', response.data.loginUser);
       this.setState({ loading: false });
-      // const Token = ls.get('token');
       this.setState({
         redirect: true,
         hasError: false,
@@ -102,6 +100,7 @@ class Login extends Component {
     } catch {
       this.setState({
         message: 'This is an error',
+        loading: false,
       }, () => {
         const { message } = this.state;
         openSnackBar(message, 'error');

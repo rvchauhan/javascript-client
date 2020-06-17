@@ -4,11 +4,13 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
+// import { onError } from 'apollo-link-error';
 import { withStyles } from '@material-ui/core';
+import { graphql } from '@apollo/react-hoc';
+import Compose from 'lodash.flowright';
 import { Table } from '../../components/index';
 import { FormDialog, EditDialog, DeleteDialog } from './components/index';
-import callApi from '../../libs/utils/Api';
-
+import { GET_TRAINEE } from './Query';
 import { MyContext } from '../../Context/SnackBarProvider/index';
 
 const UseStyles = (theme) => ({
@@ -29,13 +31,10 @@ class Trainee extends React.Component {
       order: '',
       EditOpen: false,
       DelOpen: false,
-      dataObj: [],
-      loading: false,
       page: 0,
-      rowsPerPage: 10,
+      rowsPerPage: 5,
       editData: {},
       deleteData: {},
-      Count: 0,
     };
   }
 
@@ -65,12 +64,6 @@ class Trainee extends React.Component {
     this.setState({ selected: event.target.value }, () => console.log(data));
   };
 
-  handleChangePage = (event, newPage) => {
-    this.handlePageChange(newPage);
-    this.setState({
-      page: newPage,
-    });
-  };
 
   handleChangeRowsPerPage = (event) => {
     this.setState({
@@ -91,18 +84,22 @@ class Trainee extends React.Component {
     this.setState({ open: false, EditOpen: false }, () => { console.log('Submit Data', data); });
   };
 
-  onSubmitDelete = (data) => {
-    const { page, Count, rowsPerPage } = this.state;
+  onSubmitDelete = (refetch) => (data) => {
+    const { page, rowsPerPage } = this.state;
+    const {
+      data: {
+        getTrainee: { count = 0 } = {},
+      },
+    } = this.props;
     this.setState({
-      DelOpen: false, loader: true,
+      DelOpen: false,
     }, () => { console.log('Deleted Data', data); });
-    if (Count - page * rowsPerPage !== 1) {
-      this.handlePageChange(page);
+    if (count - page * rowsPerPage !== 1) {
+      refetch({ skip: page * rowsPerPage, limit: rowsPerPage });
     } else if (page !== 0) {
-      this.handlePageChange(page - 1);
-      this.setState({ page: page - 1 });
+      refetch({ skip: (page - 1) * rowsPerPage, limit: rowsPerPage });
     } else {
-      this.handlePageChange(page);
+      refetch({ skip: page * rowsPerPage, limit: rowsPerPage });
     }
   };
 
@@ -115,37 +112,39 @@ class Trainee extends React.Component {
   }
 
 
-  handlePageChange = (newPage) => {
+  handlePageChange = (refetch) => async (event, newPage) => {
     const { rowsPerPage } = this.state;
-    this.setState({ loading: true });
-    const value = this.context;
-    callApi({ params: { skip: newPage * rowsPerPage, limit: rowsPerPage } }, 'get', 'trainee').then((response) => {
-      if (response.data === undefined) {
-        this.setState({
-          loading: false,
-          message: 'This is an error',
-        }, () => {
-          const { message } = this.state;
-          value.openSnackBar(message, 'error');
-        });
-      } else {
-        const { records, count } = response.data;
-        this.setState({ dataObj: records, loading: false, Count: count });
-      }
-      return response;
-    });
+    await this.setState({ page: newPage });
+    refetch({ skip: newPage * rowsPerPage, limit: rowsPerPage });
   }
 
-  componentDidMount = () => {
-    this.handlePageChange(0);
-  }
+  // componentDidMount = () => {
+  //   const link = onError(({ graphQLErrors, networkError }) => {
+  //     if (graphQLErrors) {
+  //       graphQLErrors.map(({ message, locations, path }) => console.log(
+  //         `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+  //       ));
+  //     } else if (networkError) {
+  //       console.log(`[Network error]: ${networkError}`);
+  //     }
+  //   });
+  //   console.log("???", link);
+  // }
 
   render() {
     const {
       orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData,
-      deleteData, dataObj, loading, Count,
+      deleteData,
     } = this.state;
-    const { classes } = this.props;
+    const {
+      classes,
+      data: {
+        getTrainee: { records = [], count = 0 } = {},
+        refetch,
+        loading,
+      },
+    } = this.props;
+    // console.log(records, count);
     return (
       <>
         <div className={classes.root}>
@@ -166,14 +165,14 @@ class Trainee extends React.Component {
         />
         <DeleteDialog
           data={deleteData}
-          onSubmit={this.onSubmitDelete}
+          onSubmit={this.onSubmitDelete(refetch)}
           onClose={this.handleDeleteClick}
           open={DelOpen}
         />
         <Table
           loader={loading}
           id="id"
-          data={dataObj}
+          data={records}
           column={[
             {
               field: 'name',
@@ -207,11 +206,11 @@ class Trainee extends React.Component {
           order={order}
           onSort={this.handleSort}
           onSelect={this.handleSelect}
-          count={Count}
+          count={count}
           page={page}
           rowsPerPage={rowsPerPage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
-          onChangePage={this.handleChangePage}
+          onChangePage={this.handlePageChange(refetch, count)}
         />
       </>
     );
@@ -220,6 +219,12 @@ class Trainee extends React.Component {
 Trainee.contextType = MyContext;
 Trainee.propTypes = {
   classes: PropTypes.objectOf(PropTypes.string).isRequired,
+  data: PropTypes.objectOf.isRequired,
 };
 
-export default withStyles(UseStyles)(Trainee);
+export default Compose(
+  withStyles(UseStyles),
+  graphql(GET_TRAINEE, {
+    options: { variables: { skip: 0, limit: 5 } },
+  }),
+)(Trainee);
