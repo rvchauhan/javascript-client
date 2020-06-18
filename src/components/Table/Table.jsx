@@ -63,9 +63,14 @@ function SimpleTable(props) {
               {data.length || loader ? (
                 <>
                   {loader ? (
-                    <Box paddingleft="80%">
-                      <CircularProgress />
-                    </Box>
+
+                    <TableRow>
+                      <TableCell align="center" colSpan={4}>
+                        <div align="center">
+                          <CircularProgress />
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     <>
                       {

@@ -16,8 +16,6 @@ import * as yup from 'yup';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import PropTypes from 'prop-types';
-import { MyContext } from '../../../../Context/SnackBarProvider/index';
-import callApi from '../../../../libs/utils/Api';
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required').min(3),
@@ -41,7 +39,6 @@ class FormDialog extends Component {
       email: '',
       password: '',
       confirmPassword: '',
-      loading: false,
       hasError: false,
       message: '',
       error: {
@@ -62,34 +59,6 @@ class FormDialog extends Component {
   handleChange = (prop) => (event) => {
     this.setState({ [prop]: event.target.value });
   };
-
-  onClickHandler = async (data, openSnackBar) => {
-    this.setState({
-      loading: true,
-      hasError: true,
-    });
-    const { onSubmit } = this.props;
-    const response = await callApi({ data }, 'post', 'trainee');
-    this.setState({ loading: false });
-    if (response.status === 'ok') {
-      this.setState({
-        hasError: false,
-        message: 'This is a success message',
-      }, () => {
-        const { message } = this.state;
-        onSubmit(data);
-        openSnackBar(message, 'success');
-      });
-    } else {
-      this.setState({
-        hasError: false,
-        message: 'error in submitting',
-      }, () => {
-        const { message } = this.state;
-        openSnackBar(message, 'error');
-      });
-    }
-  }
 
   hasErrors = () => {
     const { hasError } = this.state;
@@ -150,9 +119,11 @@ class FormDialog extends Component {
 
   render() {
     const { classes } = this.props;
-    const { open, onClose } = this.props;
     const {
-      name, email, password, confirmPassword, hasError, error, loading,
+      open, onClose, onSubmit, loading: { loading },
+    } = this.props;
+    const {
+      name, email, password, confirmPassword, hasError, error,
     } = this.state;
     this.hasErrors();
     return (
@@ -236,27 +207,23 @@ class FormDialog extends Component {
           <Button onClick={onClose} color="primary">
             Cancel
           </Button>
-          <MyContext.Consumer>
-            {({ openSnackBar }) => (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  this.onClickHandler({
-                    name, email, password, confirmPassword,
-                  }, openSnackBar);
-                  this.formReset();
-                }}
-                disabled={loading || hasError}
-              >
-                {loading && (
-                  <CircularProgress size={15} />
-                )}
-                {loading && <span>Submitting</span>}
-                {!loading && <span>Submit</span>}
-              </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              onSubmit({
+                name, email, password, confirmPassword,
+              });
+              this.formReset();
+            }}
+            disabled={loading || hasError}
+          >
+            {loading && (
+              <CircularProgress size={15} />
             )}
-          </MyContext.Consumer>
+            {loading && <span>Submitting</span>}
+            {!loading && <span>Submit</span>}
+          </Button>
         </DialogActions>
       </Dialog>
     );

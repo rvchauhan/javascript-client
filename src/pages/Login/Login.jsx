@@ -162,7 +162,6 @@ class Login extends Component {
     const {
       email, password, hasError, error, loading,
     } = this.state;
-
     this.hasErrors();
     return (
       <Container component="main" maxWidth="xs">

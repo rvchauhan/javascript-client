@@ -4,7 +4,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
-// import { onError } from 'apollo-link-error';
+import { Mutation } from '@apollo/react-components';
 import { withStyles } from '@material-ui/core';
 import { graphql } from '@apollo/react-hoc';
 import Compose from 'lodash.flowright';
@@ -12,6 +12,7 @@ import { Table } from '../../components/index';
 import { FormDialog, EditDialog, DeleteDialog } from './components/index';
 import { GET_TRAINEE } from './Query';
 import { MyContext } from '../../Context/SnackBarProvider/index';
+import { DELETE_TRAINEE, UPDATE_TRAINEE, CREATE_TRAINEE } from './Mutation';
 
 const UseStyles = (theme) => ({
   root: {
@@ -32,7 +33,7 @@ class Trainee extends React.Component {
       EditOpen: false,
       DelOpen: false,
       page: 0,
-      rowsPerPage: 5,
+      rowsPerPage: 10,
       editData: {},
       deleteData: {},
     };
@@ -80,35 +81,63 @@ class Trainee extends React.Component {
     });
   }
 
-  onSubmitEdit = (data) => {
-    this.setState({ open: false, EditOpen: false }, () => { console.log('Submit Data', data); });
-  };
-
-  onSubmitDelete = (refetch) => (data) => {
-    const { page, rowsPerPage } = this.state;
-    const {
-      data: {
-        getTrainee: { count = 0 } = {},
-      },
-    } = this.props;
-    this.setState({
-      DelOpen: false,
-    }, () => { console.log('Deleted Data', data); });
-    if (count - page * rowsPerPage !== 1) {
-      refetch({ skip: page * rowsPerPage, limit: rowsPerPage });
-    } else if (page !== 0) {
-      refetch({ skip: (page - 1) * rowsPerPage, limit: rowsPerPage });
-    } else {
-      refetch({ skip: page * rowsPerPage, limit: rowsPerPage });
+  onSubmitEdit = async (data, openSnackBar, updateTrainee) => {
+    try {
+      const { name, email, id } = data;
+      await updateTrainee({ variables: { name, email, id } });
+      this.setState({
+        EditOpen: false,
+      }, () => {
+        openSnackBar('Trainee Created Successfully', 'success');
+      });
+    } catch {
+      this.setState({
+        open: false,
+      }, () => {
+        openSnackBar('Error While Creating', 'error');
+      });
     }
   };
 
-  onSubmitAdd = (data) => {
-    const { page } = this.state;
-    this.setState({
-      open: false, loader: true,
-    }, () => { console.log('Submitted Data', data); });
-    this.handlePageChange(page);
+  onSubmitDelete = async (data, deleteTrainee, openSnackBar) => {
+    const { originalId: id } = data;
+    const { rowsPerPage, page } = this.state;
+    const {
+      data: {
+        getTrainee: { count = 0 } = {},
+        refetch,
+      },
+    } = this.props;
+    const response = await deleteTrainee({ variables: { id } });
+    if (response) {
+      this.setState({
+        DelOpen: false,
+      }, () => {
+        openSnackBar('Trainee Deleted Successfully', 'success');
+      });
+      if (count - page * rowsPerPage === 1 && page > 0) {
+        refetch({ skip: (page - 1) * rowsPerPage, limit: rowsPerPage });
+      }
+    }
+  }
+
+
+  onSubmitAdd = async (data, openSnackBar, createTrainee) => {
+    try {
+      const { name, email, password } = data;
+      await createTrainee({ variables: { name, email, password } });
+      this.setState({
+        open: false,
+      }, () => {
+        openSnackBar('Trainee Created Successfully', 'success');
+      });
+    } catch {
+      this.setState({
+        open: false,
+      }, () => {
+        openSnackBar('Error While Creating', 'error');
+      });
+    }
   }
 
 
@@ -117,19 +146,6 @@ class Trainee extends React.Component {
     await this.setState({ page: newPage });
     refetch({ skip: newPage * rowsPerPage, limit: rowsPerPage });
   }
-
-  // componentDidMount = () => {
-  //   const link = onError(({ graphQLErrors, networkError }) => {
-  //     if (graphQLErrors) {
-  //       graphQLErrors.map(({ message, locations, path }) => console.log(
-  //         `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-  //       ));
-  //     } else if (networkError) {
-  //       console.log(`[Network error]: ${networkError}`);
-  //     }
-  //   });
-  //   console.log("???", link);
-  // }
 
   render() {
     const {
@@ -144,78 +160,114 @@ class Trainee extends React.Component {
         loading,
       },
     } = this.props;
-    // console.log(records, count);
+    const variables = { skip: page * rowsPerPage, limit: rowsPerPage };
     return (
       <>
-        <div className={classes.root}>
-          <Button variant="outlined" color="primary" onClick={() => this.handleClick(true)}>
-            ADD TRAINEE
-          </Button>
-        </div>
-        <FormDialog
-          onClose={() => this.handleClick(false)}
-          onSubmit={this.onSubmitAdd}
-          open={open}
-        />
-        <EditDialog
-          data={editData}
-          onClose={this.handleEditClick}
-          onSubmit={this.onSubmitEdit}
-          open={EditOpen}
-        />
-        <DeleteDialog
-          data={deleteData}
-          onSubmit={this.onSubmitDelete(refetch)}
-          onClose={this.handleDeleteClick}
-          open={DelOpen}
-        />
-        <Table
-          loader={loading}
-          id="id"
-          data={records}
-          column={[
-            {
-              field: 'name',
-              label: 'Name',
-              align: 'center',
-            },
-            {
-              field: 'email',
-              label: 'EmailAddress',
-              format: (value) => value && value.toUpperCase(),
-            },
-            {
-              field: 'createdAt',
-              label: 'Date',
-              align: 'left',
-              format: this.getDateFormat,
-            },
-          ]}
-          actions={[
-            {
-              icon: <EditIcon />,
-              handler: this.handleEditDialogopen,
-            },
-            {
+        <Mutation
+          mutation={DELETE_TRAINEE}
+          refetchQueries={[{ query: GET_TRAINEE, variables }]}
+        >
+          {(deleteTrainee, delLoader = { loading }) => (
+            <Mutation
+              mutation={CREATE_TRAINEE}
+              refetchQueries={[{ query: GET_TRAINEE, variables }]}
+            >
+              {(createTrainee, createrLoader = { loading }) => (
+                <Mutation
+                  mutation={UPDATE_TRAINEE}
+                  refetchQueries={[{ query: GET_TRAINEE, variables }]}
+                >
+                  {(updateTrainee, updateLoader = { loading }) => (
+                    <MyContext.Consumer>
+                      {({ openSnackBar }) => (
+                        <>
+                          <div className={classes.root}>
+                            <Button variant="outlined" color="primary" onClick={() => this.handleClick(true)}>
+                              ADD TRAINEE
+                            </Button>
+                          </div>
+                          <FormDialog
+                            onClose={() => this.handleClick(false)}
+                            onSubmit={(data) => this.onSubmitAdd(data, openSnackBar, createTrainee)}
+                            open={open}
+                            loading={createrLoader}
+                          />
+                          <EditDialog
+                            data={editData}
+                            onClose={this.handleEditClick}
+                            onSubmit={
+                              (data) => this.onSubmitEdit(data, openSnackBar, updateTrainee)
+                            }
+                            open={EditOpen}
+                            loading={updateLoader}
+                          />
+                          <DeleteDialog
+                            data={deleteData}
+                            onSubmit={
+                              (data) => this.onSubmitDelete(data, deleteTrainee, openSnackBar)
+                            }
+                            onClose={this.handleDeleteClick}
+                            open={DelOpen}
+                            loading={delLoader}
+                          />
+                          <Table
+                            loader={loading}
+                            id="id"
+                            data={records}
+                            column={[
+                              {
+                                field: 'name',
+                                label: 'Name',
+                                align: 'center',
+                              },
+                              {
+                                field: 'email',
+                                label: 'EmailAddress',
+                                format: (value) => value && value.toUpperCase(),
+                              },
+                              {
+                                field: 'createdAt',
+                                label: 'Date',
+                                align: 'left',
+                                format: this.getDateFormat,
+                              },
+                            ]}
+                            actions={[
+                              {
+                                icon: <EditIcon />,
+                                handler: this.handleEditDialogopen,
+                              },
+                              {
 
-              icon: <DeleteIcon />,
-              handler: this.handleRemoveDialogopen,
-            },
-          ]}
-          orderby={orderBy}
-          order={order}
-          onSort={this.handleSort}
-          onSelect={this.handleSelect}
-          count={count}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onChangeRowsPerPage={this.handleChangeRowsPerPage}
-          onChangePage={this.handlePageChange(refetch, count)}
-        />
+                                icon: <DeleteIcon />,
+                                handler: this.handleRemoveDialogopen,
+                              },
+                            ]}
+                            orderby={orderBy}
+                            order={order}
+                            onSort={this.handleSort}
+                            onSelect={this.handleSelect}
+                            count={count}
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            onChangePage={this.handlePageChange(refetch, count)}
+                          />
+                        </>
+                      )}
+                    </MyContext.Consumer>
+                  )}
+                </Mutation>
+              )}
+            </Mutation>
+          )}
+        </Mutation>
       </>
     );
   }
 }
+
+
 Trainee.contextType = MyContext;
 Trainee.propTypes = {
   classes: PropTypes.objectOf(PropTypes.string).isRequired,
@@ -225,6 +277,6 @@ Trainee.propTypes = {
 export default Compose(
   withStyles(UseStyles),
   graphql(GET_TRAINEE, {
-    options: { variables: { skip: 0, limit: 5 } },
+    options: { variables: { skip: 0, limit: 10 } },
   }),
 )(Trainee);

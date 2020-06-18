@@ -4,9 +4,9 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import PropTypes from 'prop-types';
+import PropTypes, { bool } from 'prop-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { MyContext } from '../../../../Context/SnackBarProvider/index';
+// import { MyContext } from '../../../../Context/SnackBarProvider/index';
 import callAPi from '../../../../libs/utils/Api';
 
 export default class DeleteDialog extends Component {
@@ -16,7 +16,6 @@ export default class DeleteDialog extends Component {
       name: '',
       email: '',
       message: '',
-      loading: false,
     };
   }
 
@@ -57,9 +56,9 @@ export default class DeleteDialog extends Component {
 
   render() {
     const {
-      open, onClose, data,
+      open, onClose, data, onSubmit, loading: { loading },
     } = this.props;
-    const { loading } = this.state;
+    // const { loading } = this.state;
     return (
       <Dialog open={open} onClose={() => this.handleClose()} aria-labelledby="form-dialog-title" fullWidth>
         <DialogTitle id="form-dialog-title">Delete Item</DialogTitle>
@@ -70,24 +69,20 @@ export default class DeleteDialog extends Component {
           <Button onClick={onClose} color="primary">
             Cancel
           </Button>
-          <MyContext.Consumer>
-            {({ openSnackBar }) => (
-              <Button
-                color="primary"
-                variant="contained"
-                disabled={loading}
-                onClick={() => {
-                  this.onClickHandler(data, openSnackBar);
-                }}
-              >
-                {loading && (
-                  <CircularProgress size={15} />
-                )}
-                {loading && <span>Deleting</span>}
-                {!loading && <span>Delete</span>}
-              </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            disabled={loading}
+            onClick={() => {
+              onSubmit(data);
+            }}
+          >
+            {loading && (
+              <CircularProgress size={15} />
             )}
-          </MyContext.Consumer>
+            {loading && <span>Deleting</span>}
+            {!loading && <span>Delete</span>}
+          </Button>
         </DialogActions>
       </Dialog>
     );
@@ -99,4 +94,5 @@ DeleteDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   data: PropTypes.objectOf(PropTypes.string).isRequired,
   onSubmit: PropTypes.func.isRequired,
+  loading: PropTypes.objectOf(bool).isRequired,
 };
