@@ -13,6 +13,7 @@ import { FormDialog, EditDialog, DeleteDialog } from './components/index';
 import { GET_TRAINEE } from './Query';
 import { MyContext } from '../../Context/SnackBarProvider/index';
 import { DELETE_TRAINEE, UPDATE_TRAINEE, CREATE_TRAINEE } from './Mutation';
+import { DELETED_TRAINEE_SUB, UPDATED_TRAINEE_SUB } from './Subscription';
 
 const UseStyles = (theme) => ({
   root: {
@@ -104,7 +105,7 @@ class Trainee extends React.Component {
     const { rowsPerPage, page } = this.state;
     const {
       data: {
-        getTrainee: { count = 0 } = {},
+        getTrainee: { records, count = 0 } = {},
         refetch,
       },
     } = this.props;
@@ -115,8 +116,11 @@ class Trainee extends React.Component {
       }, () => {
         openSnackBar('Trainee Deleted Successfully', 'success');
       });
-      if (count - page * rowsPerPage === 1 && page > 0) {
+      if (records.length === 1 && page > 0) {
+        this.setState({ page: page - 1 });
         refetch({ skip: (page - 1) * rowsPerPage, limit: rowsPerPage });
+      } else if (records.length === 1 && page === 0 && count > 0) {
+        refetch({ skip: (page) * rowsPerPage, limit: rowsPerPage });
       }
     }
   }
@@ -147,6 +151,50 @@ class Trainee extends React.Component {
     refetch({ skip: newPage * rowsPerPage, limit: rowsPerPage });
   }
 
+  componentDidMount = () => {
+    const { data: { subscribeToMore } } = this.props;
+    subscribeToMore({
+      document: UPDATED_TRAINEE_SUB,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData) return prev;
+        const { getTrainee: { records } } = prev;
+        const { data: { traineeUpdated } } = subscriptionData;
+        const updatedRecords = [...records].map((record) => {
+          if (record.originalId === traineeUpdated.originalId) {
+            return {
+              ...record,
+              ...traineeUpdated,
+            };
+          }
+          return record;
+        });
+        return {
+          getTrainee: {
+            ...prev.getTrainee,
+            ...prev.getTrainee.count,
+            records: updatedRecords,
+          },
+        };
+      },
+    });
+    subscribeToMore({
+      document: DELETED_TRAINEE_SUB,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData) return prev;
+        const { getTrainee: { records } } = prev;
+        const { data: { traineeDeleted } } = subscriptionData;
+        const updatedRecords = [...records].filter((record) => record.originalId !== traineeDeleted);
+        return {
+          getTrainee: {
+            ...prev.getTrainee,
+            ...prev.getTrainee.count - 1,
+            records: updatedRecords,
+          },
+        };
+      },
+    });
+  }
+
   render() {
     const {
       orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData,
@@ -165,7 +213,6 @@ class Trainee extends React.Component {
       <>
         <Mutation
           mutation={DELETE_TRAINEE}
-          refetchQueries={[{ query: GET_TRAINEE, variables }]}
         >
           {(deleteTrainee, delLoader = { loading }) => (
             <Mutation
@@ -175,7 +222,6 @@ class Trainee extends React.Component {
               {(createTrainee, createrLoader = { loading }) => (
                 <Mutation
                   mutation={UPDATE_TRAINEE}
-                  refetchQueries={[{ query: GET_TRAINEE, variables }]}
                 >
                   {(updateTrainee, updateLoader = { loading }) => (
                     <MyContext.Consumer>
