@@ -30,7 +30,7 @@ class Trainee extends React.Component {
       EditOpen: false,
       DelOpen: false,
       page: 0,
-      rowsPerPage: 5,
+      rowsPerPage: 10,
       editData: {},
       deleteData: {},
     };
