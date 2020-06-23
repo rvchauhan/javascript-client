@@ -22,11 +22,11 @@ const Button = (props) => {
 };
 
 Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
   color: PropTypes.string,
   disabled: PropTypes.bool,
   style: PropTypes.objectOf(PropTypes.string),
   value: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
 };
 
 Button.defaultProps = {
