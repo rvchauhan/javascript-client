@@ -10,7 +10,7 @@ import ChildrenDemo from './pages/ChildrenDemo/ChildrenDemo';
 import TextFieldDemo from './pages/TextFieldDemo/TextFielddemo';
 import Login from './pages/Login/Login';
 import Trainee from './pages/Trainee/Trainee';
-import InputDemo from './pages/InputDemo/InputDemo';
+import InputDemo from './pages/InputDemo/index';
 import { AuthRoute, PrivateRoute } from './pages/routes/index';
 import NoMatch from './pages/NoMatch/index';
 import { SnackBarProvider } from './Context/SnackBarProvider/index';

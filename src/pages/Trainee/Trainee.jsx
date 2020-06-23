@@ -1,11 +1,10 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import TraineeList from './TraineeList';
 import TraineeDetail from './TraineeDetail';
 
-const TraineeRoutes = (props) => {
-  console.log(props);
-  const { match: { path } } = props;
+const TraineeRoutes = () => {
+  const { path } = useRouteMatch();
 
   return (
     <Switch>
@@ -14,4 +13,6 @@ const TraineeRoutes = (props) => {
     </Switch>
   );
 };
+
+
 export default TraineeRoutes;

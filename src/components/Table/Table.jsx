@@ -83,7 +83,7 @@ function SimpleTable(props) {
               ) : <Box paddingLeft="50%"><h2> OOPS NO MORE TRAINEES</h2></Box>}
             </TableBody>
             <TablePagination
-              rowsPerPageOptions={0}
+              rowsPerPageOptions={[0]}
               count={count}
               rowsPerPage={rowsPerPage}
               page={page}

@@ -217,12 +217,8 @@ class Trainee extends React.Component {
     );
   }
 }
-
 Trainee.contextType = MyContext;
-
-
 Trainee.propTypes = {
   classes: PropTypes.objectOf(PropTypes.string).isRequired,
 };
-
 export default withStyles(UseStyles)(Trainee);
