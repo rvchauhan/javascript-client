@@ -32,7 +32,7 @@ class Trainee extends React.Component {
       EditOpen: false,
       DelOpen: false,
       page: 0,
-      rowsPerPage: 5,
+      rowsPerPage: 10,
       editData: {},
       deleteData: {},
     };
@@ -117,19 +117,6 @@ class Trainee extends React.Component {
     await this.setState({ page: newPage });
     refetch({ skip: newPage * rowsPerPage, limit: rowsPerPage });
   }
-
-  // componentDidMount = () => {
-  //   const link = onError(({ graphQLErrors, networkError }) => {
-  //     if (graphQLErrors) {
-  //       graphQLErrors.map(({ message, locations, path }) => console.log(
-  //         `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-  //       ));
-  //     } else if (networkError) {
-  //       console.log(`[Network error]: ${networkError}`);
-  //     }
-  //   });
-  //   console.log("???", link);
-  // }
 
   render() {
     const {
