@@ -9,7 +9,9 @@ import PersonIcon from '@material-ui/icons/Person';
 import EmailIcon from '@material-ui/icons/Email';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
+import callAPi from '../../../../libs/utils/Api';
 import { MyContext } from '../../../../Context/SnackBarProvider/index';
 
 
@@ -19,6 +21,7 @@ export default class EditDialog extends Component {
     this.state = {
       name: '',
       email: '',
+      loading: false,
       touched: {
         name: false,
         email: false,
@@ -75,6 +78,33 @@ export default class EditDialog extends Component {
     });
   }
 
+  onClickHandler = async (Data, openSnackBar) => {
+    const { onSubmit } = this.props;
+    this.setState({
+      loading: true,
+    });
+    const response = await callAPi({
+      data: { ...Data },
+    }, 'put', 'trainee');
+    this.setState({ loading: false });
+    if (response.status === 'ok') {
+      this.setState({
+        message: 'Trainee Updated Successfully',
+      }, () => {
+        const { message } = this.state;
+        onSubmit(Data);
+        openSnackBar(message, 'success');
+      });
+    } else {
+      this.setState({
+        message: 'Error while submitting',
+      }, () => {
+        const { message } = this.state;
+        openSnackBar(message, 'error');
+      });
+    }
+  }
+
   formReset = () => {
     this.setState({
       name: '',
@@ -86,9 +116,12 @@ export default class EditDialog extends Component {
 
   render() {
     const {
-      open, onClose, onSubmit, data,
+      open, onClose, data,
     } = this.props;
-    const { name, email } = this.state;
+    const {
+      name, email, loading,
+    } = this.state;
+    const { originalId: id } = data;
     return (
       <div>
         <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title" fullwidth>
@@ -97,7 +130,7 @@ export default class EditDialog extends Component {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
-                  onChange={() => this.handleNameChange()}
+                  onChange={this.handleNameChange}
                   autoFocus
                   // eslint-disable-next-line react/prop-types
                   defaultValue={data.name}
@@ -115,7 +148,11 @@ export default class EditDialog extends Component {
               </Grid>
               <Grid item xs={12}>
                 <TextField
+<<<<<<< HEAD
+                  onChange={this.handleEmailChange}
+=======
                   onChange={() => this.handleEmailChange('email')}
+>>>>>>> 4a257518b1c22123a9c19ee78e23fe50c7ca0dea
                   autoFocus
                   // eslint-disable-next-line react/prop-types
                   defaultValue={data.email}
@@ -141,13 +178,17 @@ export default class EditDialog extends Component {
               {({ openSnackBar }) => (
                 <Button
                   onClick={() => {
-                    onSubmit({ name, email });
+                    this.onClickHandler({ name, email, id }, openSnackBar);
                     this.formReset();
-                    openSnackBar('This is a success message ! ', 'success');
                   }}
                   color="primary"
+                  disabled={loading}
                 >
-                  Submit
+                  {loading && (
+                    <CircularProgress size={15} />
+                  )}
+                  {loading && <span>Submitting</span>}
+                  {!loading && <span>Submit</span>}
                 </Button>
               )}
             </MyContext.Consumer>
@@ -161,6 +202,6 @@ export default class EditDialog extends Component {
 EditDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
   data: PropTypes.objectOf(PropTypes.string).isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };

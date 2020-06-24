@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -12,18 +11,12 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonIcon from '@material-ui/icons/Person';
 import Grid from '@material-ui/core/Grid';
 import EmailIcon from '@material-ui/icons/Email';
-import * as yup from 'yup'
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import PropTypes from 'prop-types';
+import schema from './helper';
 import { MyContext } from '../../../../Context/SnackBarProvider/index';
-
-const schema = yup.object().shape({
-  name: yup.string().required('Name is required').min(3),
-  email: yup.string().email().required('Email is required'),
-  password: yup.string().required('Password is required').matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[A-Za-z0-9]{8,}$/,
-    'Must contain 8 characters at least one uppercase one lowercase and one number'),
-  confirmPassword: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match').required('Confirm password is required'),
-});
+import callApi from '../../../../libs/utils/Api';
 
 const useStyles = () => ({
   root: {
@@ -39,7 +32,9 @@ class FormDialog extends Component {
       email: '',
       password: '',
       confirmPassword: '',
+      loading: false,
       hasError: false,
+      message: '',
       error: {
         name: '',
         email: '',
@@ -59,6 +54,34 @@ class FormDialog extends Component {
     this.setState({ [prop]: event.target.value });
   };
 
+  onClickHandler = async (data, openSnackBar) => {
+    this.setState({
+      loading: true,
+      hasError: true,
+    });
+    const { onSubmit } = this.props;
+    const response = await callApi({ data }, 'post', 'trainee');
+    this.setState({ loading: false });
+    if (response.status === 'ok') {
+      this.setState({
+        hasError: false,
+        message: 'This is a success message',
+      }, () => {
+        const { message } = this.state;
+        onSubmit(data);
+        openSnackBar(message, 'success');
+      });
+    } else {
+      this.setState({
+        hasError: false,
+        message: 'error in submitting',
+      }, () => {
+        const { message } = this.state;
+        openSnackBar(message, 'error');
+      });
+    }
+  }
+
   hasErrors = () => {
     const { hasError } = this.state;
     schema
@@ -72,7 +95,6 @@ class FormDialog extends Component {
 
   isTouched = (field) => {
     const { touched } = this.state;
-    console.log('field', field);
     this.setState({
       touched: {
         ...touched,
@@ -107,11 +129,21 @@ class FormDialog extends Component {
     return error[field];
   }
 
+  formReset = () => {
+    this.setState({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      touched: {},
+    });
+  }
+
   render() {
     const { classes } = this.props;
-    const { open, onClose, onSubmit } = this.props;
+    const { open, onClose } = this.props;
     const {
-      name, email, password, confirmPassword, hasError, error,
+      name, email, password, confirmPassword, hasError, error, loading,
     } = this.state;
     this.hasErrors();
     return (
@@ -192,7 +224,6 @@ class FormDialog extends Component {
           </Grid>
         </DialogContent>
         <DialogActions>
-
           <Button onClick={onClose} color="primary">
             Cancel
           </Button>
@@ -202,14 +233,18 @@ class FormDialog extends Component {
                 variant="contained"
                 color="primary"
                 onClick={() => {
-                  openSnackBar('This is a success message ! ', 'success');
-                  onSubmit({
+                  this.onClickHandler({
                     name, email, password, confirmPassword,
-                  });
+                  }, openSnackBar);
+                  this.formReset();
                 }}
-                disabled={hasError}
+                disabled={loading || hasError}
               >
-                Submit
+                {loading && (
+                  <CircularProgress size={15} />
+                )}
+                {loading && <span>Submitting</span>}
+                {!loading && <span>Submit</span>}
               </Button>
             )}
           </MyContext.Consumer>
@@ -222,8 +257,9 @@ class FormDialog extends Component {
 export default withStyles(useStyles)(FormDialog);
 
 FormDialog.propTypes = {
-  classes: PropTypes.objectOf(PropTypes.string).isRequired,
+  // value: PropTypes.string.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  classes: PropTypes.objectOf(PropTypes.string).isRequired,
 };
