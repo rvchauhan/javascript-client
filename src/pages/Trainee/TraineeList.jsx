@@ -1,15 +1,17 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
-// import * as yup from 'yup';
 import * as moment from 'moment';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
-import trainees from './data/trainee';
+// import { onError } from 'apollo-link-error';
+import { withStyles } from '@material-ui/core';
+import { graphql } from '@apollo/react-hoc';
+import Compose from 'lodash.flowright';
 import { Table } from '../../components/index';
 import { FormDialog, EditDialog, DeleteDialog } from './components/index';
+import { GET_TRAINEE } from './Query';
+import { MyContext } from '../../Context/SnackBarProvider/index';
 
 const UseStyles = (theme) => ({
   root: {
@@ -25,7 +27,7 @@ class Trainee extends React.Component {
     this.state = {
       open: false,
       selected: '',
-      orderBy: '',
+      orderby: '',
       order: '',
       EditOpen: false,
       DelOpen: false,
@@ -38,8 +40,8 @@ class Trainee extends React.Component {
 
   getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
-  handleClick = (status, data) => {
-    this.setState({ open: status }, () => { console.log(data); });
+  handleClick = (status) => {
+    this.setState({ open: status });
   };
 
   handleEditDialogopen = (data) => {
@@ -62,17 +64,11 @@ class Trainee extends React.Component {
     this.setState({ selected: event.target.value }, () => console.log(data));
   };
 
-  handleChangePage = (event, newPage) => {
-    this.setState({
-      page: newPage,
-    });
-  };
 
   handleChangeRowsPerPage = (event) => {
     this.setState({
       rowsPerPage: event.target.value,
       page: 0,
-
     });
   };
 
@@ -84,11 +80,58 @@ class Trainee extends React.Component {
     });
   }
 
+  onSubmitEdit = (data) => {
+    this.setState({ open: false, EditOpen: false }, () => { console.log('Submit Data', data); });
+  };
+
+  onSubmitDelete = (refetch) => (data) => {
+    const { page, rowsPerPage } = this.state;
+    const {
+      data: {
+        getTrainee: { count = 0 } = {},
+      },
+    } = this.props;
+    this.setState({
+      DelOpen: false,
+    }, () => { console.log('Deleted Data', data); });
+    if (count - page * rowsPerPage !== 1) {
+      refetch({ skip: page * rowsPerPage, limit: rowsPerPage });
+    } else if (page !== 0) {
+      refetch({ skip: (page - 1) * rowsPerPage, limit: rowsPerPage });
+    } else {
+      refetch({ skip: page * rowsPerPage, limit: rowsPerPage });
+    }
+  };
+
+  onSubmitAdd = (data) => {
+    const { page } = this.state;
+    this.setState({
+      open: false, loader: true,
+    }, () => { console.log('Submitted Data', data); });
+    this.handlePageChange(page);
+  }
+
+
+  handlePageChange = (refetch) => async (event, newPage) => {
+    const { rowsPerPage } = this.state;
+    await this.setState({ page: newPage });
+    refetch({ skip: newPage * rowsPerPage, limit: rowsPerPage });
+  }
+
   render() {
     const {
-      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData, deleteData,
+      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData,
+      deleteData,
     } = this.state;
-    const { classes } = this.props;
+    const {
+      classes,
+      data: {
+        getTrainee: { records = [], count = 0 } = {},
+        refetch,
+        loading,
+      },
+    } = this.props;
+    // console.log(records, count);
     return (
       <>
         <div className={classes.root}>
@@ -97,25 +140,26 @@ class Trainee extends React.Component {
           </Button>
         </div>
         <FormDialog
-          open={open}
           onClose={() => this.handleClick(false)}
-          onSubmit={(data) => this.handleClick(false, data)}
+          onSubmit={this.onSubmitAdd}
+          open={open}
         />
         <EditDialog
           data={editData}
           onClose={this.handleEditClick}
-          onSubmit={this.handleEditClick}
+          onSubmit={this.onSubmitEdit}
           open={EditOpen}
         />
         <DeleteDialog
           data={deleteData}
+          onSubmit={this.onSubmitDelete(refetch)}
           onClose={this.handleDeleteClick}
-          onSubmit={this.handleDeleteClick}
           open={DelOpen}
         />
         <Table
+          loader={loading}
           id="id"
-          data={trainees}
+          data={records}
           column={[
             {
               field: 'name',
@@ -145,23 +189,29 @@ class Trainee extends React.Component {
               handler: this.handleRemoveDialogopen,
             },
           ]}
-          orderBy={orderBy}
+          orderby={orderBy}
           order={order}
           onSort={this.handleSort}
           onSelect={this.handleSelect}
-          count={100}
+          count={count}
           page={page}
           rowsPerPage={rowsPerPage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
-          onChangePage={this.handleChangePage}
+          onChangePage={this.handlePageChange(refetch, count)}
         />
       </>
     );
   }
 }
-
+Trainee.contextType = MyContext;
 Trainee.propTypes = {
   classes: PropTypes.objectOf(PropTypes.string).isRequired,
+  data: PropTypes.objectOf.isRequired,
 };
 
-export default withStyles(UseStyles)(Trainee);
+export default Compose(
+  withStyles(UseStyles),
+  graphql(GET_TRAINEE, {
+    options: { variables: { skip: 0, limit: 5 } },
+  }),
+)(Trainee);
