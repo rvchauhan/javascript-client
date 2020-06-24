@@ -26,7 +26,7 @@ class Trainee extends React.Component {
       open: false,
       selected: '',
       orderBy: '',
-      order: 'asc',
+      order: '',
       EditOpen: false,
       DelOpen: false,
       page: 0,
@@ -39,7 +39,7 @@ class Trainee extends React.Component {
   getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
   handleClick = (status, data) => {
-    this.setState({ open: status }, () => { console.log(this.state, data); });
+    this.setState({ open: status }, () => { console.log(data); });
   };
 
   handleEditDialogopen = (data) => {
@@ -89,7 +89,6 @@ class Trainee extends React.Component {
       orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData, deleteData,
     } = this.state;
     const { classes } = this.props;
-    // const { trainees } = props;
     return (
       <>
         <div className={classes.root}>
