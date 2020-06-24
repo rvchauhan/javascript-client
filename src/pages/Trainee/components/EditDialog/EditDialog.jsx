@@ -8,9 +8,9 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonIcon from '@material-ui/icons/Person';
 import EmailIcon from '@material-ui/icons/Email';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import PropTypes from 'prop-types';
+import PropTypes, { bool } from 'prop-types';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
-import { MyContext } from '../../../../Context/SnackBarProvider/index';
 
 
 export default class EditDialog extends Component {
@@ -75,6 +75,7 @@ export default class EditDialog extends Component {
     });
   }
 
+
   formReset = () => {
     this.setState({
       name: '',
@@ -86,9 +87,12 @@ export default class EditDialog extends Component {
 
   render() {
     const {
-      open, onClose, onSubmit, data,
+      open, onClose, data, onSubmit, loading: { loading },
     } = this.props;
-    const { name, email } = this.state;
+    const {
+      name, email,
+    } = this.state;
+    const { originalId: id } = data;
     return (
       <div>
         <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title" fullwidth>
@@ -137,20 +141,24 @@ export default class EditDialog extends Component {
             <Button onClick={onClose} color="primary">
               Cancel
             </Button>
-            <MyContext.Consumer>
-              {({ openSnackBar }) => (
-                <Button
-                  onClick={() => {
-                    onSubmit({ name, email });
-                    this.formReset();
-                    openSnackBar('This is a success message ! ', 'success');
-                  }}
-                  color="primary"
-                >
-                  Submit
-                </Button>
+            {/* <MyContext.Consumer>
+              {({ openSnackBar }) => ( */}
+            <Button
+              onClick={() => {
+                onSubmit({ name, email, id });
+                this.formReset();
+              }}
+              color="primary"
+              disabled={loading}
+            >
+              {loading && (
+                <CircularProgress size={15} />
               )}
-            </MyContext.Consumer>
+              {loading && <span>Submitting</span>}
+              {!loading && <span>Submit</span>}
+            </Button>
+            {/* )}
+            </MyContext.Consumer> */}
           </DialogActions>
         </Dialog>
       </div>
@@ -161,6 +169,7 @@ export default class EditDialog extends Component {
 EditDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
   data: PropTypes.objectOf(PropTypes.string).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  loading: PropTypes.objectOf(bool).isRequired,
 };

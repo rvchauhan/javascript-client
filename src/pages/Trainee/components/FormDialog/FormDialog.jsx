@@ -12,10 +12,10 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonIcon from '@material-ui/icons/Person';
 import Grid from '@material-ui/core/Grid';
 import EmailIcon from '@material-ui/icons/Email';
-import * as yup from 'yup'
+import * as yup from 'yup';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import PropTypes from 'prop-types';
-import { MyContext } from '../../../../Context/SnackBarProvider/index';
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required').min(3),
@@ -40,6 +40,7 @@ class FormDialog extends Component {
       password: '',
       confirmPassword: '',
       hasError: false,
+      message: '',
       error: {
         name: '',
         email: '',
@@ -72,7 +73,6 @@ class FormDialog extends Component {
 
   isTouched = (field) => {
     const { touched } = this.state;
-    console.log('field', field);
     this.setState({
       touched: {
         ...touched,
@@ -107,9 +107,21 @@ class FormDialog extends Component {
     return error[field];
   }
 
+  formReset = () => {
+    this.setState({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      touched: {},
+    });
+  }
+
   render() {
     const { classes } = this.props;
-    const { open, onClose, onSubmit } = this.props;
+    const {
+      open, onClose, onSubmit, loading: { loading },
+    } = this.props;
     const {
       name, email, password, confirmPassword, hasError, error,
     } = this.state;
@@ -192,27 +204,26 @@ class FormDialog extends Component {
           </Grid>
         </DialogContent>
         <DialogActions>
-
           <Button onClick={onClose} color="primary">
             Cancel
           </Button>
-          <MyContext.Consumer>
-            {({ openSnackBar }) => (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  openSnackBar('This is a success message ! ', 'success');
-                  onSubmit({
-                    name, email, password, confirmPassword,
-                  });
-                }}
-                disabled={hasError}
-              >
-                Submit
-              </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              onSubmit({
+                name, email, password, confirmPassword,
+              });
+              this.formReset();
+            }}
+            disabled={loading || hasError}
+          >
+            {loading && (
+              <CircularProgress size={15} />
             )}
-          </MyContext.Consumer>
+            {loading && <span>Submitting</span>}
+            {!loading && <span>Submit</span>}
+          </Button>
         </DialogActions>
       </Dialog>
     );
@@ -225,5 +236,5 @@ FormDialog.propTypes = {
   classes: PropTypes.objectOf(PropTypes.string).isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
+  // onSubmit: PropTypes.func.isRequired,
 };
