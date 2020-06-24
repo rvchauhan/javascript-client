@@ -1,15 +1,19 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
-// import * as yup from 'yup';
 import * as moment from 'moment';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
-import trainees from './data/trainee';
+import { Mutation } from '@apollo/react-components';
+import { withStyles } from '@material-ui/core';
+import { graphql } from '@apollo/react-hoc';
+import Compose from 'lodash.flowright';
 import { Table } from '../../components/index';
 import { FormDialog, EditDialog, DeleteDialog } from './components/index';
+import { GET_TRAINEE } from './Query';
+import { MyContext } from '../../Context/SnackBarProvider/index';
+import { DELETE_TRAINEE, UPDATE_TRAINEE, CREATE_TRAINEE } from './Mutation';
+import { DELETED_TRAINEE_SUB, UPDATED_TRAINEE_SUB } from './Subscription';
 
 const UseStyles = (theme) => ({
   root: {
@@ -25,7 +29,7 @@ class Trainee extends React.Component {
     this.state = {
       open: false,
       selected: '',
-      orderBy: '',
+      orderby: '',
       order: '',
       EditOpen: false,
       DelOpen: false,
@@ -38,8 +42,8 @@ class Trainee extends React.Component {
 
   getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
-  handleClick = (status, data) => {
-    this.setState({ open: status }, () => { console.log(data); });
+  handleClick = (status) => {
+    this.setState({ open: status });
   };
 
   handleEditDialogopen = (data) => {
@@ -62,17 +66,11 @@ class Trainee extends React.Component {
     this.setState({ selected: event.target.value }, () => console.log(data));
   };
 
-  handleChangePage = (event, newPage) => {
-    this.setState({
-      page: newPage,
-    });
-  };
 
   handleChangeRowsPerPage = (event) => {
     this.setState({
       rowsPerPage: event.target.value,
       page: 0,
-
     });
   };
 
@@ -84,84 +82,247 @@ class Trainee extends React.Component {
     });
   }
 
+  onSubmitEdit = async (data, openSnackBar, updateTrainee) => {
+    try {
+      const { name, email, id } = data;
+      await updateTrainee({ variables: { name, email, id } });
+      this.setState({
+        EditOpen: false,
+      }, () => {
+        openSnackBar('Trainee Created Successfully', 'success');
+      });
+    } catch {
+      this.setState({
+        open: false,
+      }, () => {
+        openSnackBar('Error While Creating', 'error');
+      });
+    }
+  };
+
+  onSubmitDelete = async (data, deleteTrainee, openSnackBar) => {
+    const { originalId: id } = data;
+    const { rowsPerPage, page } = this.state;
+    const {
+      data: {
+        getTrainee: { records, count = 0 } = {},
+        refetch,
+      },
+    } = this.props;
+    const response = await deleteTrainee({ variables: { id } });
+    if (response) {
+      this.setState({
+        DelOpen: false,
+      }, () => {
+        openSnackBar('Trainee Deleted Successfully', 'success');
+      });
+      if (records.length === 1 && page > 0) {
+        this.setState({ page: page - 1 });
+        refetch({ skip: (page - 1) * rowsPerPage, limit: rowsPerPage });
+      } else if (records.length === 1 && page === 0 && count > 0) {
+        refetch({ skip: (page) * rowsPerPage, limit: rowsPerPage });
+      }
+    }
+  }
+
+
+  onSubmitAdd = async (data, openSnackBar, createTrainee) => {
+    try {
+      const { name, email, password } = data;
+      await createTrainee({ variables: { name, email, password } });
+      this.setState({
+        open: false,
+      }, () => {
+        openSnackBar('Trainee Created Successfully', 'success');
+      });
+    } catch {
+      this.setState({
+        open: false,
+      }, () => {
+        openSnackBar('Error While Creating', 'error');
+      });
+    }
+  }
+
+
+  handlePageChange = (refetch) => async (event, newPage) => {
+    const { rowsPerPage } = this.state;
+    await this.setState({ page: newPage });
+    refetch({ skip: newPage * rowsPerPage, limit: rowsPerPage });
+  }
+
+  componentDidMount = () => {
+    const { data: { subscribeToMore } } = this.props;
+    subscribeToMore({
+      document: UPDATED_TRAINEE_SUB,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData) return prev;
+        const { getTrainee: { records } } = prev;
+        const { data: { traineeUpdated } } = subscriptionData;
+        const updatedRecords = [...records].map((record) => {
+          if (record.originalId === traineeUpdated.originalId) {
+            return {
+              ...record,
+              ...traineeUpdated,
+            };
+          }
+          return record;
+        });
+        return {
+          getTrainee: {
+            ...prev.getTrainee,
+            ...prev.getTrainee.count,
+            records: updatedRecords,
+          },
+        };
+      },
+    });
+    subscribeToMore({
+      document: DELETED_TRAINEE_SUB,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData) return prev;
+        const { getTrainee: { records } } = prev;
+        const { data: { traineeDeleted } } = subscriptionData;
+        const updatedRecords = [...records].filter((record) => record.originalId !== traineeDeleted);
+        return {
+          getTrainee: {
+            ...prev.getTrainee,
+            ...prev.getTrainee.count - 1,
+            records: updatedRecords,
+          },
+        };
+      },
+    });
+  }
+
   render() {
     const {
-      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData, deleteData,
+      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData,
+      deleteData,
     } = this.state;
-    const { classes } = this.props;
+    const {
+      classes,
+      data: {
+        getTrainee: { records = [], count = 0 } = {},
+        refetch,
+        loading,
+      },
+    } = this.props;
+    const variables = { skip: page * rowsPerPage, limit: rowsPerPage };
     return (
       <>
-        <div className={classes.root}>
-          <Button variant="outlined" color="primary" onClick={() => this.handleClick(true)}>
-            ADD TRAINEE
-          </Button>
-        </div>
-        <FormDialog
-          open={open}
-          onClose={() => this.handleClick(false)}
-          onSubmit={(data) => this.handleClick(false, data)}
-        />
-        <EditDialog
-          data={editData}
-          onClose={this.handleEditClick}
-          onSubmit={this.handleEditClick}
-          open={EditOpen}
-        />
-        <DeleteDialog
-          data={deleteData}
-          onClose={this.handleDeleteClick}
-          onSubmit={this.handleDeleteClick}
-          open={DelOpen}
-        />
-        <Table
-          id="id"
-          data={trainees}
-          column={[
-            {
-              field: 'name',
-              label: 'Name',
-              align: 'center',
-            },
-            {
-              field: 'email',
-              label: 'EmailAddress',
-              format: (value) => value && value.toUpperCase(),
-            },
-            {
-              field: 'createdAt',
-              label: 'Date',
-              align: 'left',
-              format: this.getDateFormat,
-            },
-          ]}
-          actions={[
-            {
-              icon: <EditIcon />,
-              handler: this.handleEditDialogopen,
-            },
-            {
+        <Mutation
+          mutation={DELETE_TRAINEE}
+        >
+          {(deleteTrainee, delLoader = { loading }) => (
+            <Mutation
+              mutation={CREATE_TRAINEE}
+              refetchQueries={[{ query: GET_TRAINEE, variables }]}
+            >
+              {(createTrainee, createrLoader = { loading }) => (
+                <Mutation
+                  mutation={UPDATE_TRAINEE}
+                >
+                  {(updateTrainee, updateLoader = { loading }) => (
+                    <MyContext.Consumer>
+                      {({ openSnackBar }) => (
+                        <>
+                          <div className={classes.root}>
+                            <Button variant="outlined" color="primary" onClick={() => this.handleClick(true)}>
+                              ADD TRAINEE
+                            </Button>
+                          </div>
+                          <FormDialog
+                            onClose={() => this.handleClick(false)}
+                            onSubmit={(data) => this.onSubmitAdd(data, openSnackBar, createTrainee)}
+                            open={open}
+                            loading={createrLoader}
+                          />
+                          <EditDialog
+                            data={editData}
+                            onClose={this.handleEditClick}
+                            onSubmit={
+                              (data) => this.onSubmitEdit(data, openSnackBar, updateTrainee)
+                            }
+                            open={EditOpen}
+                            loading={updateLoader}
+                          />
+                          <DeleteDialog
+                            data={deleteData}
+                            onSubmit={
+                              (data) => this.onSubmitDelete(data, deleteTrainee, openSnackBar)
+                            }
+                            onClose={this.handleDeleteClick}
+                            open={DelOpen}
+                            loading={delLoader}
+                          />
+                          <Table
+                            loader={loading}
+                            id="id"
+                            data={records}
+                            column={[
+                              {
+                                field: 'name',
+                                label: 'Name',
+                                align: 'center',
+                              },
+                              {
+                                field: 'email',
+                                label: 'EmailAddress',
+                                format: (value) => value && value.toUpperCase(),
+                              },
+                              {
+                                field: 'createdAt',
+                                label: 'Date',
+                                align: 'left',
+                                format: this.getDateFormat,
+                              },
+                            ]}
+                            actions={[
+                              {
+                                icon: <EditIcon />,
+                                handler: this.handleEditDialogopen,
+                              },
+                              {
 
-              icon: <DeleteIcon />,
-              handler: this.handleRemoveDialogopen,
-            },
-          ]}
-          orderBy={orderBy}
-          order={order}
-          onSort={this.handleSort}
-          onSelect={this.handleSelect}
-          count={100}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onChangeRowsPerPage={this.handleChangeRowsPerPage}
-          onChangePage={this.handleChangePage}
-        />
+                                icon: <DeleteIcon />,
+                                handler: this.handleRemoveDialogopen,
+                              },
+                            ]}
+                            orderby={orderBy}
+                            order={order}
+                            onSort={this.handleSort}
+                            onSelect={this.handleSelect}
+                            count={count}
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            onChangePage={this.handlePageChange(refetch, count)}
+                          />
+                        </>
+                      )}
+                    </MyContext.Consumer>
+                  )}
+                </Mutation>
+              )}
+            </Mutation>
+          )}
+        </Mutation>
       </>
     );
   }
 }
 
+
+Trainee.contextType = MyContext;
 Trainee.propTypes = {
   classes: PropTypes.objectOf(PropTypes.string).isRequired,
+  data: PropTypes.objectOf.isRequired,
 };
 
-export default withStyles(UseStyles)(Trainee);
+export default Compose(
+  withStyles(UseStyles),
+  graphql(GET_TRAINEE, {
+    options: { variables: { skip: 0, limit: 10 } },
+  }),
+)(Trainee);
