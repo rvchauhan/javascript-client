@@ -39,7 +39,11 @@ class Trainee extends React.Component {
   getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
   handleClick = (status, data) => {
+<<<<<<< HEAD
+    this.setState({ open: status }, () => { console.log(this.state, data); });
+=======
     this.setState({ open: status }, () => { console.log(data); });
+>>>>>>> 4a257518b1c22123a9c19ee78e23fe50c7ca0dea
   };
 
   handleEditDialogopen = (data) => {

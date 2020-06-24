@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Avatar from '@material-ui/core/Avatar';
+import { Redirect } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -11,12 +12,20 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import EmailIcon from '@material-ui/icons/Email';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { Box } from '@material-ui/core';
+import callApi from '../../libs/utils/Api';
+import { MyContext } from '../../Context/SnackBarProvider/index';
+
 
 const schema = yup.object().shape({
   email: yup.string().email().required('Email is required'),
-  password: yup.string().required('Password is required'),
+  password: yup.string().required('Password is required')
+    .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+      'must contain 8 characters at \n least one uppercase one lowercase \n and one number'),
 });
+
+const ls = require('local-storage');
 
 const useStyles = (theme) => ({
   box: {
@@ -46,7 +55,10 @@ class Login extends Component {
     this.state = {
       email: '',
       password: '',
-      hasError: false,
+      loading: false,
+      redirect: false,
+      hasError: true,
+      message: '',
       error: {
         email: '',
         password: '',
@@ -58,9 +70,39 @@ class Login extends Component {
     };
   }
 
+
+  renderRedirect = () => {
+    const { redirect } = this.state;
+    if (redirect) {
+      return <Redirect to="/trainee" />
+    }
+  }
+
   handleChange = (prop) => (event) => {
     this.setState({ [prop]: event.target.value });
   };
+
+  onClickHandler = async (data, openSnackBar) => {
+    this.setState({
+      loading: true,
+      hasError: true,
+    });
+    await callApi(data, 'post', 'user/login');
+    this.setState({ loading: false });
+    if (ls.get('token')) {
+      this.setState({
+        redirect: true,
+        hasError: false,
+      });
+    } else {
+      this.setState({
+        message: 'This is an error',
+      }, () => {
+        const { message } = this.state;
+        openSnackBar(message, 'error');
+      });
+    }
+  }
 
   hasErrors = () => {
     const { hasError } = this.state;
@@ -83,6 +125,7 @@ class Login extends Component {
       },
     });
   }
+
 
   getError = (field) => {
     const { error, touched } = this.state;
@@ -113,7 +156,7 @@ class Login extends Component {
   render() {
     const { classes } = this.props;
     const {
-      email, password, hasError, error,
+      email, password, hasError, error, loading,
     } = this.state;
     console.log(this.state);
     this.hasErrors();
@@ -160,16 +203,28 @@ class Login extends Component {
                 }}
                 variant="outlined"
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-                disabled={hasError}
-              >
-                Sign In
-              </Button>
+              <MyContext.Consumer>
+                {({ openSnackBar }) => (
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    // href="/trainee"
+                    className={classes.submit}
+                    disabled={loading || hasError}
+                    onClick={() => {
+                      this.onClickHandler({ email, password }, openSnackBar);
+                    }}
+                  >
+                    {loading && (
+                      <CircularProgress />
+                    )}
+                    {loading && <span>Signing in</span>}
+                    {!loading && <span>Sign in</span>}
+                    {this.renderRedirect()}
+                  </Button>
+                )}
+              </MyContext.Consumer>
             </form>
           </div>
         </Box>

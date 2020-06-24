@@ -85,7 +85,7 @@ export default function SimpleTable(props) {
               ))}
             </TableBody>
             <TablePagination
-              rowsPerPageOptions={0}
+              rowsPerPageOptions={[0]}
               count={count}
               rowsPerPage={rowsPerPage}
               page={page}

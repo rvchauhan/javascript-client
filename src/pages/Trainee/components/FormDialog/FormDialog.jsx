@@ -12,18 +12,10 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonIcon from '@material-ui/icons/Person';
 import Grid from '@material-ui/core/Grid';
 import EmailIcon from '@material-ui/icons/Email';
-import * as yup from 'yup'
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import PropTypes from 'prop-types';
+import schema from './helper';
 import { MyContext } from '../../../../Context/SnackBarProvider/index';
-
-const schema = yup.object().shape({
-  name: yup.string().required('Name is required').min(3),
-  email: yup.string().email().required('Email is required'),
-  password: yup.string().required('Password is required').matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[A-Za-z0-9]{8,}$/,
-    'Must contain 8 characters at least one uppercase one lowercase and one number'),
-  confirmPassword: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match').required('Confirm password is required'),
-});
 
 const useStyles = () => ({
   root: {
@@ -72,7 +64,6 @@ class FormDialog extends Component {
 
   isTouched = (field) => {
     const { touched } = this.state;
-    console.log('field', field);
     this.setState({
       touched: {
         ...touched,
