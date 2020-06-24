@@ -7,10 +7,13 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
 import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
 import PropTypes from 'prop-types';
 import {
   withStyles, createStyles, makeStyles,
 } from '@material-ui/core/styles';
+import hoc from '../HOC/withLoaderAndMessage';
+
 
 const useStyles = makeStyles({
   table: {
@@ -26,17 +29,11 @@ const StyledTableRow = withStyles((theme) => createStyles({
   },
 }))(TableRow);
 
-// handleChangeRowsPerPage = (event) => {
-//   setRowsPerPage(parseInt(event.target.value, 10));
-//   setPage(0);
-// };
-
-
-export default function SimpleTable(props) {
+function SimpleTable(props) {
   const classes = useStyles();
   const {
     // eslint-disable-next-line max-len
-    id, column, data, onSelect, onSort, ordery, order, actions, count, rowsPerPage, page, onChangePage, onChangeRowsPerPage,
+    id, column, data, onSelect, onSort, orderby, order, actions, count, rowsPerPage, page, onChangePage, onChangeRowsPerPage,
   } = props;
   return (
     <>
@@ -50,8 +47,8 @@ export default function SimpleTable(props) {
                     <TableCell align={align} className={classes.column}>
                       <TableSortLabel
                         align={align}
-                        active={ordery === field}
-                        direction={ordery === field ? order : 'asc'}
+                        active={orderby === field}
+                        direction={orderby === field ? order : 'asc'}
                         onClick={onSort(field)}
                       >
                         {label}
@@ -62,27 +59,28 @@ export default function SimpleTable(props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(rowsPerPage > 0
-                ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                : data
-              ).map((element) => (
-                <StyledTableRow hover key={element[id]}>
-                  {
-                    column && column.length && column.map(({ align, field, format }) => (
-                      <TableCell onClick={(event) => onSelect(event, element.name)} align={align} component="th" scope="row" order={order} ordery={ordery}>
-                        {format ? format(element[field]) : element[field]}
-                      </TableCell>
-                    ))
-                  }
-                  {actions && actions.length && actions.map(({ icon, handler }) => (
-                    <TableCell>
-                      <Button onClick={() => handler(element)}>
-                        {icon}
-                      </Button>
-                    </TableCell>
+              {data.length ? (
+                <>
+                  {data.map((element) => (
+                    <StyledTableRow hover key={element[id]}>
+                      {
+                        column && column.length && column.map(({ align, field, format }) => (
+                          <TableCell onClick={(event) => onSelect(event, element.name)} align={align} component="th" scope="row" order={order} orderby={orderby}>
+                            {format ? format(element[field]) : element[field]}
+                          </TableCell>
+                        ))
+                      }
+                      {actions && actions.length && actions.map(({ icon, handler }) => (
+                        <TableCell>
+                          <Button onClick={() => handler(element)}>
+                            {icon}
+                          </Button>
+                        </TableCell>
+                      ))}
+                    </StyledTableRow>
                   ))}
-                </StyledTableRow>
-              ))}
+                </>
+              ) : <Box paddingLeft="50%"><h2> OOPS NO MORE TRAINEES</h2></Box>}
             </TableBody>
             <TablePagination
               rowsPerPageOptions={0}
@@ -106,7 +104,7 @@ SimpleTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   onSelect: PropTypes.func.isRequired,
   onSort: PropTypes.func.isRequired,
-  ordery: PropTypes.string,
+  orderby: PropTypes.string,
   order: PropTypes.oneOf(['asc', 'desc']),
   count: PropTypes.number.isRequired,
   page: PropTypes.number.isRequired,
@@ -116,6 +114,8 @@ SimpleTable.propTypes = {
 };
 
 SimpleTable.defaultProps = {
-  ordery: '',
+  orderby: '',
   order: 'asc',
 };
+
+export default hoc(SimpleTable);
