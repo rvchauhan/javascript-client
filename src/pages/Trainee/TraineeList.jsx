@@ -1,15 +1,15 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
+// import * as yup from 'yup';
 import * as moment from 'moment';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from '@material-ui/core/Button';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core';
+import PropTypes from 'prop-types';
+import trainees from './data/trainee';
 import { Table } from '../../components/index';
 import { FormDialog, EditDialog, DeleteDialog } from './components/index';
-import callApi from '../../libs/utils/Api';
-
-import { MyContext } from '../../Context/SnackBarProvider/index';
 
 const UseStyles = (theme) => ({
   root: {
@@ -25,24 +25,21 @@ class Trainee extends React.Component {
     this.state = {
       open: false,
       selected: '',
-      orderby: '',
+      orderBy: '',
       order: '',
       EditOpen: false,
       DelOpen: false,
-      dataObj: [],
-      loading: false,
       page: 0,
       rowsPerPage: 10,
       editData: {},
       deleteData: {},
-      Count: 0,
     };
   }
 
   getDateFormat = (date) => moment(date).format('dddd, MMMM Do YYYY, h:mm:ss')
 
-  handleClick = (status) => {
-    this.setState({ open: status });
+  handleClick = (status, data) => {
+    this.setState({ open: status }, () => { console.log(data); });
   };
 
   handleEditDialogopen = (data) => {
@@ -66,7 +63,6 @@ class Trainee extends React.Component {
   };
 
   handleChangePage = (event, newPage) => {
-    this.handlePageChange(newPage);
     this.setState({
       page: newPage,
     });
@@ -76,6 +72,7 @@ class Trainee extends React.Component {
     this.setState({
       rowsPerPage: event.target.value,
       page: 0,
+
     });
   };
 
@@ -87,63 +84,9 @@ class Trainee extends React.Component {
     });
   }
 
-  onSubmitEdit = (data) => {
-    this.setState({ open: false, EditOpen: false }, () => { console.log('Submit Data', data); });
-  };
-
-  onSubmitDelete = (data) => {
-    const { page, Count, rowsPerPage } = this.state;
-    this.setState({
-      DelOpen: false, loader: true,
-    }, () => { console.log('Deleted Data', data); });
-    if (Count - page * rowsPerPage !== 1) {
-      this.handlePageChange(page);
-    } else if (page !== 0) {
-      this.handlePageChange(page - 1);
-      this.setState({ page: page - 1 });
-    } else {
-      this.handlePageChange(page);
-    }
-  };
-
-  onSubmitAdd = (data) => {
-    const { page } = this.state;
-    this.setState({
-      open: false, loader: true,
-    }, () => { console.log('Submitted Data', data); });
-    this.handlePageChange(page);
-  }
-
-
-  handlePageChange = (newPage) => {
-    const { rowsPerPage } = this.state;
-    this.setState({ loading: true });
-    const value = this.context;
-    callApi({ params: { skip: newPage * rowsPerPage, limit: rowsPerPage } }, 'get', 'trainee').then((response) => {
-      if (response.data === undefined) {
-        this.setState({
-          loading: false,
-          message: 'This is an error',
-        }, () => {
-          const { message } = this.state;
-          value.openSnackBar(message, 'error');
-        });
-      } else {
-        const { records, count } = response.data;
-        this.setState({ dataObj: records, loading: false, Count: count });
-      }
-      return response;
-    });
-  }
-
-  componentDidMount = () => {
-    this.handlePageChange(0);
-  }
-
   render() {
     const {
-      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData,
-      deleteData, dataObj, loading, Count,
+      orderBy, order, open, EditOpen, DelOpen, page, rowsPerPage, editData, deleteData,
     } = this.state;
     const { classes } = this.props;
     return (
@@ -154,26 +97,25 @@ class Trainee extends React.Component {
           </Button>
         </div>
         <FormDialog
-          onClose={() => this.handleClick(false)}
-          onSubmit={this.onSubmitAdd}
           open={open}
+          onClose={() => this.handleClick(false)}
+          onSubmit={(data) => this.handleClick(false, data)}
         />
         <EditDialog
           data={editData}
           onClose={this.handleEditClick}
-          onSubmit={this.onSubmitEdit}
+          onSubmit={this.handleEditClick}
           open={EditOpen}
         />
         <DeleteDialog
           data={deleteData}
-          onSubmit={this.onSubmitDelete}
           onClose={this.handleDeleteClick}
+          onSubmit={this.handleDeleteClick}
           open={DelOpen}
         />
         <Table
-          loader={loading}
           id="id"
-          data={dataObj}
+          data={trainees}
           column={[
             {
               field: 'name',
@@ -203,11 +145,11 @@ class Trainee extends React.Component {
               handler: this.handleRemoveDialogopen,
             },
           ]}
-          orderby={orderBy}
+          orderBy={orderBy}
           order={order}
           onSort={this.handleSort}
           onSelect={this.handleSelect}
-          count={Count}
+          count={100}
           page={page}
           rowsPerPage={rowsPerPage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
@@ -217,8 +159,9 @@ class Trainee extends React.Component {
     );
   }
 }
-Trainee.contextType = MyContext;
+
 Trainee.propTypes = {
   classes: PropTypes.objectOf(PropTypes.string).isRequired,
 };
+
 export default withStyles(UseStyles)(Trainee);

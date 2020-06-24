@@ -148,7 +148,11 @@ export default class EditDialog extends Component {
               </Grid>
               <Grid item xs={12}>
                 <TextField
+<<<<<<< HEAD
                   onChange={this.handleEmailChange}
+=======
+                  onChange={() => this.handleEmailChange('email')}
+>>>>>>> 4a257518b1c22123a9c19ee78e23fe50c7ca0dea
                   autoFocus
                   // eslint-disable-next-line react/prop-types
                   defaultValue={data.email}

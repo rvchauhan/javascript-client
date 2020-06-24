@@ -38,7 +38,11 @@ export default class DeleteDialog extends Component {
     this.setState({ loading: false });
     if (response.status === 'ok') {
       this.setState({
+<<<<<<< HEAD
         message: 'This is a success message',
+=======
+        message: 'Deleted Successfully ',
+>>>>>>> 4a257518b1c22123a9c19ee78e23fe50c7ca0dea
       }, () => {
         const { message } = this.state;
         onSubmit(data);
@@ -46,7 +50,11 @@ export default class DeleteDialog extends Component {
       });
     } else {
       this.setState({
+<<<<<<< HEAD
         message: 'error in submitting',
+=======
+        message: 'Error While Deleting',
+>>>>>>> 4a257518b1c22123a9c19ee78e23fe50c7ca0dea
       }, () => {
         const { message } = this.state;
         openSnackBar(message, 'error');
